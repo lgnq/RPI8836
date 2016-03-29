@@ -37,6 +37,6 @@ spi_id = spi.read_id()
 print spi_id
 """
 
-spi.quad_init()
+spi.quad_enable()
 
 spi.sector_erase()
