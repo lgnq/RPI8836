@@ -39,4 +39,5 @@ print spi_id
 
 spi.quad_enable()
 
-spi.sector_erase()
+#spi.sector_erase(0)
+spi.program_test()
