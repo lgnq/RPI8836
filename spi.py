@@ -388,7 +388,12 @@ def quad_enable():
                     print 'SPI flash is in QUAD mode'
                     
                 enter_4b_mode()
-                print 'SPI flash is in 4 Byte mode'
+                
+                status = status2_read()
+                if (status & 0x20):
+                	print 'SPI flash is in 4 Byte mode'
+                else:
+                    print 'SPI flash is not in 4 Byte mode'
             elif (id[2] == 0x19):   #GD25Q256C            
                 status = status1_read()
 
@@ -412,64 +417,126 @@ def quad_enable():
         print 'todo'            
 
 def dma_spi_to_xram(spi_addr, xram_addr, size):
-    tw8836.write_page(0x04)
+    status = status2_read()
+
+    if (status & 0x20):		#in 4B mode
+        tw8836.write_page(0x04)
     
-    tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
+        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
 
-    tw8836.write(0xFA, SPICMD_READ_SLOW)
+        tw8836.write(0xFA, SPICMD_READ_SLOW)
 
-    tw8836.write(0xFB, (spi_addr >> 24))
-    tw8836.write(0xFD, (spi_addr >> 16))
-    tw8836.write(0xFD, (spi_addr >> 8))
-    tw8836.write(0xFE, (spi_addr))
+        tw8836.write(0xFB, (spi_addr >> 24))
+        tw8836.write(0xFC, (spi_addr >> 16))
+        tw8836.write(0xFD, (spi_addr >> 8))
+        tw8836.write(0xFE, (spi_addr))
     
-    tw8836.write(0xF6, (xram_addr >> 8))        # xram address high
-    tw8836.write(0xF7, (xram_addr))             # xram address low
+        tw8836.write(0xF6, (xram_addr >> 8))        # xram address high
+        tw8836.write(0xF7, (xram_addr))             # xram address low
 
-    tw8836.write(0xF5, (size >> 16))            # data Buff count high
-    tw8836.write(0xF8, (size >> 8))             # data Buff count middle
-    tw8836.write(0xF9, (size))                  # data Buff count Low
+        tw8836.write(0xF5, (size >> 16))            # data Buff count high
+        tw8836.write(0xF8, (size >> 8))             # data Buff count middle
+        tw8836.write(0xF9, (size))                  # data Buff count Low
 
-    #start DMA read (no BUSY check)
-    tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+        #start DMA read (no BUSY check)
+        tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+    else:
+        tw8836.write_page(0x04)
+    
+        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4)
+
+        tw8836.write(0xFA, SPICMD_READ_SLOW)
+
+        tw8836.write(0xFB, (spi_addr >> 16))
+        tw8836.write(0xFC, (spi_addr >> 8))
+        tw8836.write(0xFD, (spi_addr))
+    
+        tw8836.write(0xF6, (xram_addr >> 8))        # xram address high
+        tw8836.write(0xF7, (xram_addr))             # xram address low
+
+        tw8836.write(0xF5, (size >> 16))            # data Buff count high
+        tw8836.write(0xF8, (size >> 8))             # data Buff count middle
+        tw8836.write(0xF9, (size))                  # data Buff count Low
+
+        #start DMA read (no BUSY check)
+        tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
 
 def dma_xram_to_spi(xram_addr, spi_addr, size):
-    write_enable()
+    status = status2_read()
 
-    tw8836.write(0xFF, 0x04)
+    if (status & 0x20):     #in 4B mode
+        write_enable()
 
-    tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
+        tw8836.write(0xFF, 0x04)
 
-    tw8836.write(0xFA, SPICMD_PP)
+        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
 
-    tw8836.write(0xFB, (spi_addr >> 24))
-    tw8836.write(0xFD, (spi_addr >> 16))
-    tw8836.write(0xFD, (spi_addr >> 8))
-    tw8836.write(0xFE, (spi_addr))
+        tw8836.write(0xFA, SPICMD_PP)
+
+        tw8836.write(0xFB, (spi_addr >> 24))
+        tw8836.write(0xFC, (spi_addr >> 16))
+        tw8836.write(0xFD, (spi_addr >> 8))
+        tw8836.write(0xFE, (spi_addr))
     
-    tw8836.write(0xF6, (xram_addr>>8))          # xram address high
-    tw8836.write(0xF7, (xram_addr))             # xram address low
+        tw8836.write(0xF6, (xram_addr>>8))          # xram address high
+        tw8836.write(0xF7, (xram_addr))             # xram address low
 
-    tw8836.write(0xF5, (size >> 16))            # data Buff count high
-    tw8836.write(0xF8, (size >> 8))             # data Buff count middle
-    tw8836.write(0xF9, (size))                  # data Buff count Low
+        tw8836.write(0xF5, (size >> 16))            # data Buff count high
+        tw8836.write(0xF8, (size >> 8))             # data Buff count middle
+        tw8836.write(0xF9, (size))                  # data Buff count Low
 
-    #start DMA write (BUSY check)
-    tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
-    #  printf("\r\n0xF4 = 0x%x before DMA 0x%x", tw8836.read(0xF4), (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
-    while (tw8836.read(0xF4) & 0x01):
-        if (DEBUG == ON):
-            print 'wait...'
+        #  printf("\r\n0xF4 = 0x%x before DMA 0x%x", tw8836.read(0xF4), (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+        while (tw8836.read(0xF4) & 0x01):
+            if (DEBUG == ON):
+                print 'wait...'
 
-    #  printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
+        #  printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
-    #check write enable bit is cleared
-    while (status1_read() & 0x02):
-        if (DEBUG == ON):
-            print 'wait...'
+        #check write enable bit is cleared
+        while (status1_read() & 0x02):
+            if (DEBUG == ON):
+                print 'wait...'
 
-    #printf("\r\nSPI wirte to addr[0x%x] size[0x%x] finished!", spi_addr, size)
+        #printf("\r\nSPI wirte to addr[0x%x] size[0x%x] finished!", spi_addr, size)
+    else:
+        write_enable()
+
+        tw8836.write(0xFF, 0x04)
+
+        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4)
+
+        tw8836.write(0xFA, SPICMD_PP)
+
+        tw8836.write(0xFB, (spi_addr >> 16))
+        tw8836.write(0xFC, (spi_addr >> 8))
+        tw8836.write(0xFD, (spi_addr))
+    
+        tw8836.write(0xF6, (xram_addr>>8))          # xram address high
+        tw8836.write(0xF7, (xram_addr))             # xram address low
+
+        tw8836.write(0xF5, (size >> 16))            # data Buff count high
+        tw8836.write(0xF8, (size >> 8))             # data Buff count middle
+        tw8836.write(0xF9, (size))                  # data Buff count Low
+
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+
+        #  printf("\r\n0xF4 = 0x%x before DMA 0x%x", tw8836.read(0xF4), (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+        while (tw8836.read(0xF4) & 0x01):
+            if (DEBUG == ON):
+                print 'wait...'
+
+        #  printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
+
+        #check write enable bit is cleared
+        while (status1_read() & 0x02):
+            if (DEBUG == ON):
+                print 'wait...'
+
+        #printf("\r\nSPI wirte to addr[0x%x] size[0x%x] finished!", spi_addr, size)
 
 def xram_write(addr, data, size):
     tw8836.write(0xFF, 0x04)
@@ -492,87 +559,152 @@ def xram_write(addr, data, size):
     tw8836.write(0xC2, tw8836.read(0xC2) & ~0x01)
 
 def sector_erase(sector_addr):
-    write_enable()
+    status = status2_read()
 
-    tw8836.write_page(0x04)
+    if (status & 0x20):     #in 4B mode    
+        write_enable()
 
-    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_5)
+        tw8836.write_page(0x04)
 
-    #write sector erase command
-    tw8836.write(0xFA, SPICMD_SE)
+        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_5)
 
-    #write block addr
-    """	
-    tw8836.write(0xFB, (sector_addr>>16))   #Write sector addr[23-16]
-    tw8836.write(0xFC, (sector_addr>>8))    #Write sector addr[15-8]
-    tw8836.write(0xFD, (sector_addr))       #Write sector addr[7-0] 
-    """
-    tw8836.write(0xFB, (sector_addr >> 24))
-    tw8836.write(0xFD, (sector_addr >> 16))
-    tw8836.write(0xFD, (sector_addr >> 8))
-    tw8836.write(0xFE, (sector_addr))	
+        #write sector erase command
+        tw8836.write(0xFA, SPICMD_SE)
 
-    #write data length
-    tw8836.write(0xF5, 0x0)
-    tw8836.write(0xF8, 0x0)
-    tw8836.write(0xF9, 0x0)
+        #write block addr
+        tw8836.write(0xFB, (sector_addr >> 24))
+        tw8836.write(0xFC, (sector_addr >> 16))
+        tw8836.write(0xFD, (sector_addr >> 8))
+        tw8836.write(0xFE, (sector_addr))	
 
-    #start DMA write (BUSY check)
-    tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+        #write data length
+        tw8836.write(0xF5, 0x0)
+        tw8836.write(0xF8, 0x0)
+        tw8836.write(0xF9, 0x0)
 
-    #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
-    while (tw8836.read(0xF4) & 0x01):
-        if (DEBUG == ON):
-            print 'wait...'
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
-    #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
+        #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
+        while (tw8836.read(0xF4) & 0x01):
+            if (DEBUG == ON):
+                print 'wait...'
 
-    #check write enable bit is cleared
-    while (status1_read() & 0x02):
-        if (DEBUG == ON):
-            print 'wait...' 
+        #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
-    #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
+        #check write enable bit is cleared
+        while (status1_read() & 0x02):
+            if (DEBUG == ON):
+                print 'wait...' 
+
+        #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
+    else:
+        write_enable()
+
+        tw8836.write_page(0x04)
+
+        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_4)
+
+        #write sector erase command
+        tw8836.write(0xFA, SPICMD_SE)
+
+        #write block addr
+        tw8836.write(0xFB, (sector_addr >> 16))
+        tw8836.write(0xFC, (sector_addr >> 8))
+        tw8836.write(0xFD, (sector_addr))   
+
+        #write data length
+        tw8836.write(0xF5, 0x0)
+        tw8836.write(0xF8, 0x0)
+        tw8836.write(0xF9, 0x0)
+
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+
+        #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
+        while (tw8836.read(0xF4) & 0x01):
+            if (DEBUG == ON):
+                print 'wait...'
+
+        #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
+
+        #check write enable bit is cleared
+        while (status1_read() & 0x02):
+            if (DEBUG == ON):
+                print 'wait...' 
+
+        #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
 
 def block_erase(block_addr):
-    write_enable()
+    status = status2_read()
 
-    tw8836.write_page(0x04)
+    if (status & 0x20):     #in 4B mode      
+        write_enable()
 
-    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_5)
+        tw8836.write_page(0x04)
 
-    #write block erase command
-    tw8836.write(0xFA, SPICMD_BE)
+        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_5)
 
-    #write block addr
-    """	
-    tw8836.write(0xFB, (block_addr>>16))    #Write block addr[23-16]
-    tw8836.write(0xFC, (block_addr>>8))     #Write block addr[15-8]
-    tw8836.write(0xFD, (block_addr))        #Write block addr[7-0] 
-    """
-    tw8836.write(0xFB, (block_addr >> 24))
-    tw8836.write(0xFD, (block_addr >> 16))
-    tw8836.write(0xFD, (block_addr >> 8))
-    tw8836.write(0xFE, (block_addr))	
+        #write block erase command
+        tw8836.write(0xFA, SPICMD_BE)
 
-    #write data length
-    tw8836.write(0xF5, 0x0)
-    tw8836.write(0xF8, 0x0)
-    tw8836.write(0xF9, 0x0)
+        #write block addr
+        tw8836.write(0xFB, (block_addr >> 24))
+        tw8836.write(0xFC, (block_addr >> 16))
+        tw8836.write(0xFD, (block_addr >> 8))
+        tw8836.write(0xFE, (block_addr))	
 
-    #start DMA write (BUSY check)
-    tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+        #write data length
+        tw8836.write(0xF5, 0x0)
+        tw8836.write(0xF8, 0x0)
+        tw8836.write(0xF9, 0x0)
 
-    while (tw8836.read(0xF4) & 0x01):
-        if (DEBUG == ON):
-            print 'wait...'  
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
-    #check write enable bit is cleared
-    while (status1_read() & 0x02):
-        if (DEBUG == ON):
-            print 'wait...' 
-    
-    #printf("\r\nblock addr[0x%x] erase finished!\r\n", block_addr)
+        while (tw8836.read(0xF4) & 0x01):
+            if (DEBUG == ON):
+                print 'wait...'  
+
+        #check write enable bit is cleared
+        while (status1_read() & 0x02):
+            if (DEBUG == ON):
+                print 'wait...' 
+        
+        #printf("\r\nblock addr[0x%x] erase finished!\r\n", block_addr)
+    else:
+        write_enable()
+
+        tw8836.write_page(0x04)
+
+        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_4)
+
+        #write block erase command
+        tw8836.write(0xFA, SPICMD_BE)
+
+        #write block addr
+        tw8836.write(0xFB, (block_addr >> 16))
+        tw8836.write(0xFC, (block_addr >> 8))
+        tw8836.write(0xFD, (block_addr))    
+
+        #write data length
+        tw8836.write(0xF5, 0x0)
+        tw8836.write(0xF8, 0x0)
+        tw8836.write(0xF9, 0x0)
+
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+
+        while (tw8836.read(0xF4) & 0x01):
+            if (DEBUG == ON):
+                print 'wait...'  
+
+        #check write enable bit is cleared
+        while (status1_read() & 0x02):
+            if (DEBUG == ON):
+                print 'wait...' 
+        
+        #printf("\r\nblock addr[0x%x] erase finished!\r\n", block_addr)
 
 def chip_erase():		
     write_enable()
