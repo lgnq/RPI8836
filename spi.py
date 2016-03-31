@@ -152,7 +152,7 @@ def read_id():
 
     return manufacture_id, device_id_1, device_id_2
 
-def status_read():
+def status1_read():
     tw8836.write_page(0x04)
 
     tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
@@ -178,7 +178,7 @@ def status_read():
 
     return status            
 
-def status_write(status):
+def status1_write(status):
     tw8836.write_page(0x04)
 
     tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_2)
@@ -264,39 +264,39 @@ def quad_enable():
     if (id[0] == 0x1C):     #EON
         print 'EON'
     elif (id[0] == 0xC2):   #MXIC
-        status = status_read()
+        status = status1_read()
         if (status & 0x40):
             print 'SPI flash is already in QUAD mode'
             return
         else:
             write_enable()
-            status_write(status | 0x40)
+            status1_write(status | 0x40)
             write_disable()
             print 'SPI flash is in QUAD mode'
     elif (id[0] == 0xC8):   #GD
         if (id[1] == 0x40):
             if (id[2] == 0x20):     #GD25Q512MC
-                status = status_read()
+                status = status1_read()
 
                 if (status & 0x40):
                     print 'SPI flash is already in QUAD mode'
                 else:
                     write_enable()
-                    status_write(status | 0x40)
+                    status1_write(status | 0x40)
                     write_disable()
                     print 'SPI flash is in QUAD mode'
                     
                 enter_4b_mode()
                 print 'SPI flash is in 4 Byte mode'
             elif (id[2] == 0x19):   #GD25Q256C            
-                status = status_read()
+                status = status1_read()
 
                 if (status & 0x40):
                     print 'SPI flash is already in QUAD mode'
                     return
                 else:
                     write_enable()
-                    status_write(status | 0x40)
+                    status1_write(status | 0x40)
                     write_disable()
                     print 'SPI flash is in QUAD mode'
             elif (id[2] == 0x18):
@@ -364,7 +364,7 @@ def dma_xram_to_spi(xram_addr, spi_addr, size):
     #  printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
     #check write enable bit is cleared
-    while (status_read() & 0x02):
+    while (status1_read() & 0x02):
         if (DEBUG == ON):
             print 'wait...'
 
@@ -427,7 +427,7 @@ def sector_erase(sector_addr):
     #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
     #check write enable bit is cleared
-    while (status_read() & 0x02):
+    while (status1_read() & 0x02):
         if (DEBUG == ON):
             print 'wait...' 
 
@@ -467,7 +467,7 @@ def block_erase(block_addr):
             print 'wait...'  
 
     #check write enable bit is cleared
-    while (status_read() & 0x02):
+    while (status1_read() & 0x02):
         if (DEBUG == ON):
             print 'wait...' 
     
@@ -496,7 +496,7 @@ def chip_erase():
             print 'wait...'
     
     #check write enable bit is cleared
-    while (status_read() & 0x02):
+    while (status1_read() & 0x02):
         if (DEBUG == ON):
             print 'wait...'
 
