@@ -28,6 +28,7 @@ DMA_CMD_COUNT_1 = 1
 DMA_CMD_COUNT_2 = 2
 DMA_CMD_COUNT_3 = 3
 DMA_CMD_COUNT_4 = 4
+DMA_CMD_COUNT_5 = 5
 
 SPI_CMD_OPT_NONE		 = 0x00
 SPI_CMD_OPT_BUSY		 = 0x04
@@ -233,6 +234,30 @@ def write_disable():
     #start DMA write (no BUSY check)
     tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
+def enter_4b_mode():
+    tw8836.write_page(0x04)
+    
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + DMA_CMD_COUNT_1)	
+    
+    tw8836.write(0xF5, 0)	#length high
+    tw8836.write(0xF8, 0)	#length middle
+    tw8836.write(0xF9, 0)	#length low
+    
+    tw8836.write(0xFA, SPICMD_EN4B)
+    tw8836.write(0xF4, 0x01 | SPI_CMD_OPT_NONE)
+
+def exit_4b_mode():
+    tw8836.write_page(0x04)
+    
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + DMA_CMD_COUNT_1)
+    
+    tw8836.write(0xF5, 0)	#length high
+    tw8836.write(0xF8, 0)	#length middle
+    tw8836.write(0xF9, 0)	#length low
+    
+    tw8836.write(0xFA, SPICMD_EX4B)
+    tw8836.write(0xF4, 0x01 | SPI_CMD_OPT_NONE)
+	
 def quad_enable():
     id = read_id()
 
@@ -255,12 +280,14 @@ def quad_enable():
 
                 if (status & 0x40):
                     print 'SPI flash is already in QUAD mode'
-                    return
                 else:
                     write_enable()
                     status_write(status | 0x40)
                     write_disable()
                     print 'SPI flash is in QUAD mode'
+                    
+                enter_4b_mode()
+                print 'SPI flash is in 4 Byte mode'
             elif (id[2] == 0x19):   #GD25Q256C            
                 status = status_read()
 
@@ -286,13 +313,14 @@ def quad_enable():
 def dma_spi_to_xram(spi_addr, xram_addr, size):
     tw8836.write_page(0x04)
     
-    tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4)
+    tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
 
     tw8836.write(0xFA, SPICMD_READ_SLOW)
 
-    tw8836.write(0xFB, (spi_addr >> 16))
-    tw8836.write(0xFC, (spi_addr >> 8))
-    tw8836.write(0xFD, (spi_addr))
+    tw8836.write(0xFB, (spi_addr >> 24))
+    tw8836.write(0xFD, (spi_addr >> 16))
+    tw8836.write(0xFD, (spi_addr >> 8))
+    tw8836.write(0xFE, (spi_addr))
     
     tw8836.write(0xF6, (xram_addr >> 8))        # xram address high
     tw8836.write(0xF7, (xram_addr))             # xram address low
@@ -309,13 +337,14 @@ def dma_xram_to_spi(xram_addr, spi_addr, size):
 
     tw8836.write(0xFF, 0x04)
 
-    tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4)
+    tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
 
     tw8836.write(0xFA, SPICMD_PP)
 
-    tw8836.write(0xFB, (spi_addr >> 16))
-    tw8836.write(0xFC, (spi_addr >> 8))
-    tw8836.write(0xFD, (spi_addr))
+    tw8836.write(0xFB, (spi_addr >> 24))
+    tw8836.write(0xFD, (spi_addr >> 16))
+    tw8836.write(0xFD, (spi_addr >> 8))
+    tw8836.write(0xFE, (spi_addr))
     
     tw8836.write(0xF6, (xram_addr>>8))          # xram address high
     tw8836.write(0xF7, (xram_addr))             # xram address low
@@ -366,15 +395,21 @@ def sector_erase(sector_addr):
 
     tw8836.write_page(0x04)
 
-    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_4)
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_5)
 
     #write sector erase command
     tw8836.write(0xFA, SPICMD_SE)
 
     #write block addr
+    """	
     tw8836.write(0xFB, (sector_addr>>16))   #Write sector addr[23-16]
     tw8836.write(0xFC, (sector_addr>>8))    #Write sector addr[15-8]
     tw8836.write(0xFD, (sector_addr))       #Write sector addr[7-0] 
+    """
+    tw8836.write(0xFB, (sector_addr >> 24))
+    tw8836.write(0xFD, (sector_addr >> 16))
+    tw8836.write(0xFD, (sector_addr >> 8))
+    tw8836.write(0xFE, (sector_addr))	
 
     #write data length
     tw8836.write(0xF5, 0x0)
@@ -403,15 +438,21 @@ def block_erase(block_addr):
 
     tw8836.write_page(0x04)
 
-    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_4)
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_5)
 
     #write block erase command
     tw8836.write(0xFA, SPICMD_BE)
 
     #write block addr
+    """	
     tw8836.write(0xFB, (block_addr>>16))    #Write block addr[23-16]
     tw8836.write(0xFC, (block_addr>>8))     #Write block addr[15-8]
     tw8836.write(0xFD, (block_addr))        #Write block addr[7-0] 
+    """
+    tw8836.write(0xFB, (block_addr >> 24))
+    tw8836.write(0xFD, (block_addr >> 16))
+    tw8836.write(0xFD, (block_addr >> 8))
+    tw8836.write(0xFE, (block_addr))	
 
     #write data length
     tw8836.write(0xF5, 0x0)
@@ -461,6 +502,7 @@ def chip_erase():
 
     print 'chip erase success!'
 
+#size is limited to 2048?
 def write(addr, data, size):
     tw8836.mcu_halt()
 
@@ -468,6 +510,7 @@ def write(addr, data, size):
 
     dma_xram_to_spi(0x0, addr, size)
 
+#size is limited to 2048?
 def read(addr, data, size):
     dma_spi_to_xram(addr, 0x0, size)
 
@@ -483,7 +526,7 @@ def read(addr, data, size):
 
     #write XMEM start address
     tw8836.write(0xDB, 0x0)    #xram addr high byte
-    tw8836.write(0xDC, 0x0)    #xram addrlow byte
+    tw8836.write(0xDC, 0x0)    #xram addr low byte
 
     #read XMEM data register 0xDD  
     for d in data:
