@@ -49,6 +49,7 @@ SPICMD_RDSR             = 0x05    #read status register
 SPICMD_WREN             = 0x06    #write enable
 SPICMD_READ_FAST        = 0x0B    #fast read data
 SPICMD_FASTDTRD         = 0x0D    #fast DT read
+SPICMD_WRSR3            = 0x11    #write status register3(WB) 
 SPICMD_RDCR             = 0x15    #read configuration register(Macronix)
 SPICMD_RDSR3            = 0x15    #read status3 register(WB). dat[0]:4B
 SPICMD_SE               = 0x20    #sector erase
@@ -174,9 +175,61 @@ def status1_read():
     status = tw8836.read(0xD0)
 
     if (DEBUG == ON):
-        print 'status is', hex(status)
+        print 'status 1 is', hex(status)
 
-    return status            
+    return status
+
+def status2_read():
+    tw8836.write_page(0x04)
+
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
+
+    #read status 1 command
+    tw8836.write(0xFA, SPICMD_RDSR2)
+
+    tw8836.write(0xF6, 0x04)   #DMA register buffer1 0x4D0
+    tw8836.write(0xF7, 0xD0)   #DMA register buffer1 0x4D0
+
+    #read data length
+    tw8836.write(0xF5, 0x0)
+    tw8836.write(0xF8, 0x0)
+    tw8836.write(0xF9, 0x1)
+
+    #start DMA write (no BUSY check)
+    tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+
+    status = tw8836.read(0xD0)
+
+    if (DEBUG == ON):
+        print 'status 2 is', hex(status)
+
+    return status
+
+def status3_read():
+    tw8836.write_page(0x04)
+
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
+
+    #read status 1 command
+    tw8836.write(0xFA, SPICMD_RDSR3)
+
+    tw8836.write(0xF6, 0x04)   #DMA register buffer1 0x4D0
+    tw8836.write(0xF7, 0xD0)   #DMA register buffer1 0x4D0
+
+    #read data length
+    tw8836.write(0xF5, 0x0)
+    tw8836.write(0xF8, 0x0)
+    tw8836.write(0xF9, 0x1)
+
+    #start DMA write (no BUSY check)
+    tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+
+    status = tw8836.read(0xD0)
+
+    if (DEBUG == ON):
+        print 'status 3 is', hex(status)
+
+    return status
 
 def status1_write(status):
     tw8836.write_page(0x04)
@@ -185,6 +238,54 @@ def status1_write(status):
 
     #write status 1 command
     tw8836.write(0xFA, SPICMD_WRSR)
+    tw8836.write(0xFB, status)
+
+    tw8836.write(0xF6, 0x04)   #DMA register buffer1 0x4D0
+    tw8836.write(0xF7, 0xD0)   #DMA register buffer1 0x4D0
+
+    #write data length
+    tw8836.write(0xF5, 0x0)
+    tw8836.write(0xF8, 0x0)
+    tw8836.write(0xF9, 0x1)
+
+    #start DMA write (BUSY check)
+    tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+
+    while (tw8836.read(0xF4) & 0x01):
+        if (DEBUG == ON):
+            print 'wait...'
+
+def status2_write(status):
+    tw8836.write_page(0x04)
+
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_2)
+
+    #write status 1 command
+    tw8836.write(0xFA, SPICMD_WRSR2)
+    tw8836.write(0xFB, status)
+
+    tw8836.write(0xF6, 0x04)   #DMA register buffer1 0x4D0
+    tw8836.write(0xF7, 0xD0)   #DMA register buffer1 0x4D0
+
+    #write data length
+    tw8836.write(0xF5, 0x0)
+    tw8836.write(0xF8, 0x0)
+    tw8836.write(0xF9, 0x1)
+
+    #start DMA write (BUSY check)
+    tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+
+    while (tw8836.read(0xF4) & 0x01):
+        if (DEBUG == ON):
+            print 'wait...'
+
+def status3_write(status):
+    tw8836.write_page(0x04)
+
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_2)
+
+    #write status 1 command
+    tw8836.write(0xFA, SPICMD_WRSR3)
     tw8836.write(0xFB, status)
 
     tw8836.write(0xF6, 0x04)   #DMA register buffer1 0x4D0
