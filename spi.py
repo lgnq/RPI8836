@@ -791,18 +791,18 @@ def program_test():
     for d in data:
         print hex(d)
 
-    for d in data:
-        d = 0x33
-
+    for i in range(0, 10):
+        data[i] = i+2
+        
     write(0x0, data, 10)
 
     read(0x0, data, 10)
 
     print 'read back from SPI and verify :'
-    for d in data:
-        print hex(d)
+    for i in range(0, 10):
+        print hex(data[i])
 
-        if (d != 0x33):
+        if (data[i] != i+2):
             print 'verify error!'
             
             return
