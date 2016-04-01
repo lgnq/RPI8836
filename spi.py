@@ -312,12 +312,16 @@ def write_enable():
 		print 'oops... you need lv_reset!'
 	
 	tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
+    
+    #write enable command
+	tw8836.write(0xFA, SPICMD_WREN)
+
+    #write data length    
 	tw8836.write(0xF5, 0)
 	tw8836.write(0xF8, 0)	
 	tw8836.write(0xF9, 0)
 	
-	tw8836.write(0xFA, SPICMD_WREN)
-	tw8836.write(0xF4, 0x01 | SPI_CMD_OPT_NONE)
+	tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
 
 def write_disable():
     tw8836.write_page(0x04)
@@ -329,7 +333,7 @@ def write_disable():
 
     #write data length
     tw8836.write(0xF5, 0)
-    tw8836.write(0xF8, 0)   
+    tw8836.write(0xF8, 0)
     tw8836.write(0xF9, 0)
     
     #start DMA write (no BUSY check)
