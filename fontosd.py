@@ -3,7 +3,7 @@
 import define
 import tw8836
 
-def fontosd_onoff(onoff):
+def onoff_control(onoff):
     tw8836.write_page(0x03)
     
     val = tw8836.read(0x0C)

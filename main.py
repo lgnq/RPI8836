@@ -44,4 +44,4 @@ spi.quad_enable()
 #spi.sector_erase(0)
 spi.program_test()
 
-fontosd.fontosd_onoff(define.ON)
+fontosd.onoff_control(define.ON)
