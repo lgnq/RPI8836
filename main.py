@@ -4,6 +4,7 @@ import define
 import tw8836
 import spi
 import fontosd
+import bmposd
 
 """
 tw8836.write_page(0x00)
@@ -45,3 +46,4 @@ spi.quad_enable()
 spi.program_test()
 
 fontosd.onoff_control(define.ON)
+bmposd.onoff_control(define.ON)
