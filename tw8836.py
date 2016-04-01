@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 
+import define
 import smbus
-
-ON = 1
-OFF = 0
-
-DEBUG = OFF
 
 ADDR = 0x45
 bus = smbus.SMBus(1)
@@ -775,7 +771,7 @@ def init_regs(regs):
 		if ((regs[i] == 0xFF) and (regs[i+1] == 0xFF)):
 			break;
 
-		if (DEBUG == ON):
+		if (define.DEBUG == define.ON):
 			print hex(regs[i])
 
 		write(regs[i], regs[i+1])	

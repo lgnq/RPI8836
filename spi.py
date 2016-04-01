@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 
+import define
 import tw8836
-
-ON = 1
-OFF = 0
-
-DEBUG = OFF
 
 DMA_NO_BUSY_CHECK = 0
 DMA_BUSY_CHECK = 1
@@ -174,7 +170,7 @@ def status1_read():
 
     status = tw8836.read(0xD0)
 
-    if (DEBUG == ON):
+    if (define.DEBUG == define.ON):
         print 'status 1 is', hex(status)
 
     return status
@@ -200,7 +196,7 @@ def status2_read():
 
     status = tw8836.read(0xD0)
 
-    if (DEBUG == ON):
+    if (define.DEBUG == define.ON):
         print 'status 2 is', hex(status)
 
     return status
@@ -226,7 +222,7 @@ def status3_read():
 
     status = tw8836.read(0xD0)
 
-    if (DEBUG == ON):
+    if (define.DEBUG == define.ON):
         print 'status 3 is', hex(status)
 
     return status
@@ -252,7 +248,7 @@ def status1_write(status):
     tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
     while (tw8836.read(0xF4) & 0x01):
-        if (DEBUG == ON):
+        if (define.DEBUG == define.ON):
             print 'wait...'
 
 def status2_write(status):
@@ -276,7 +272,7 @@ def status2_write(status):
     tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
     while (tw8836.read(0xF4) & 0x01):
-        if (DEBUG == ON):
+        if (define.DEBUG == define.ON):
             print 'wait...'
 
 def status3_write(status):
@@ -300,7 +296,7 @@ def status3_write(status):
     tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
     while (tw8836.read(0xF4) & 0x01):
-        if (DEBUG == ON):
+        if (define.DEBUG == define.ON):
             print 'wait...'
 
 def write_enable():
@@ -503,14 +499,14 @@ def dma_xram_to_spi(xram_addr, spi_addr, size):
 
         #  printf("\r\n0xF4 = 0x%x before DMA 0x%x", tw8836.read(0xF4), (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
         while (tw8836.read(0xF4) & 0x01):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...'
 
         #  printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
         #check write enable bit is cleared
         while (status1_read() & 0x02):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...'
 
         #printf("\r\nSPI wirte to addr[0x%x] size[0x%x] finished!", spi_addr, size)
@@ -539,14 +535,14 @@ def dma_xram_to_spi(xram_addr, spi_addr, size):
 
         #  printf("\r\n0xF4 = 0x%x before DMA 0x%x", tw8836.read(0xF4), (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
         while (tw8836.read(0xF4) & 0x01):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...'
 
         #  printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
         #check write enable bit is cleared
         while (status1_read() & 0x02):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...'
 
         #printf("\r\nSPI wirte to addr[0x%x] size[0x%x] finished!", spi_addr, size)
@@ -557,7 +553,7 @@ def xram_write(addr, data, size):
     #XMEM access by I2C enable
     tw8836.write(0xC2, tw8836.read(0xC2) | 0x01)
     while ((tw8836.read(0xC2) & 0x2) == 0):
-        if (DEBUG == ON):
+        if (define.DEBUG == define.ON):
             print "wait"
 
     #write XMEM start address
@@ -600,14 +596,14 @@ def sector_erase(sector_addr):
 
         #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
         while (tw8836.read(0xF4) & 0x01):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...'
 
         #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
         #check write enable bit is cleared
         while (status1_read() & 0x02):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...' 
 
         #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
@@ -636,14 +632,14 @@ def sector_erase(sector_addr):
 
         #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
         while (tw8836.read(0xF4) & 0x01):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...'
 
         #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
         #check write enable bit is cleared
         while (status1_read() & 0x02):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...' 
 
         #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
@@ -676,12 +672,12 @@ def block_erase(block_addr):
         tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
         while (tw8836.read(0xF4) & 0x01):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...'  
 
         #check write enable bit is cleared
         while (status1_read() & 0x02):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...' 
         
         #printf("\r\nblock addr[0x%x] erase finished!\r\n", block_addr)
@@ -709,12 +705,12 @@ def block_erase(block_addr):
         tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
         while (tw8836.read(0xF4) & 0x01):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...'  
 
         #check write enable bit is cleared
         while (status1_read() & 0x02):
-            if (DEBUG == ON):
+            if (define.DEBUG == define.ON):
                 print 'wait...' 
         
         #printf("\r\nblock addr[0x%x] erase finished!\r\n", block_addr)
@@ -738,12 +734,12 @@ def chip_erase():
     tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
     while (tw8836.read(0xF4) & 0x01):
-        if (DEBUG == ON):
+        if (define.DEBUG == define.ON):
             print 'wait...'
     
     #check write enable bit is cleared
     while (status1_read() & 0x02):
-        if (DEBUG == ON):
+        if (define.DEBUG == define.ON):
             print 'wait...'
 
     print 'chip erase success!'
@@ -767,7 +763,7 @@ def read(addr, data, size):
     #XMEM access by I2C enable
     tw8836.write(0xC2, tw8836.read(0xC2) | 0x01)
     while ((tw8836.read(0xC2) & 0x2) == 0):
-        if (DEBUG == ON):
+        if (define.DEBUG == define.ON):
             print 'wait...'
 
     #write XMEM start address
