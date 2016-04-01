@@ -840,15 +840,15 @@ def crc_check(spiaddr, length):
         tw8836.write(0xFD, (spiaddr>>8))
         tw8836.write(0xFE, spiaddr)
 
-        tw8836.write(0xF4, 0x01 | SPI_CMD_OPT_NONE)
+        tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
 
-        readed = tw8836.read(0xEE)
-        readed <<= 8;
-        readed |= tw8836.read(0xEF)
-        print hex(readed)
+        crc = tw8836.read(0xEE)
+        crc <<= 8;
+        crc |= tw8836.read(0xEF)
+        print hex(crc)
         """
-        if (crc != readed):
-            print 'CRC fail.', hex(readed)
+        if (crc != crc):
+            print 'CRC fail.', hex(crc)
             return 2;
         """
         return 0;    
@@ -870,15 +870,15 @@ def crc_check(spiaddr, length):
         tw8836.write(0xFC, (spiaddr>>8))
         tw8836.write(0xFD, spiaddr)
         
-        tw8836.write(0xF4, 0x01 | SPI_CMD_OPT_NONE)
+        tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
 
-        readed = tw8836.read(0xEE)
-        readed <<= 8;
-        readed |= tw8836.read(0xEF)
-        print hex(readed)
+        crc = tw8836.read(0xEE)
+        crc <<= 8;
+        crc |= tw8836.read(0xEF)
+        print hex(crc)
         """
-        if (crc != readed):
-            print 'CRC fail.', hex(readed)
+        if (crc != crc):
+            print 'CRC fail.', hex(crc)
             return 2;
         """
         return 0; 
