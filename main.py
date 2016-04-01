@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+import define
 import tw8836
 import spi
+import fontosd
 
 """
 tw8836.write_page(0x00)
@@ -41,3 +43,5 @@ spi.quad_enable()
 
 #spi.sector_erase(0)
 spi.program_test()
+
+fontosd.fontosd_onoff(define.ON)
