@@ -349,7 +349,7 @@ def enter_4b_mode():
     tw8836.write(0xF9, 0)	#length low
     
     tw8836.write(0xFA, SPICMD_EN4B)
-    tw8836.write(0xF4, 0x01 | SPI_CMD_OPT_NONE)
+    tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
 
 def exit_4b_mode():
     tw8836.write_page(0x04)
@@ -361,7 +361,7 @@ def exit_4b_mode():
     tw8836.write(0xF9, 0)	#length low
     
     tw8836.write(0xFA, SPICMD_EX4B)
-    tw8836.write(0xF4, 0x01 | SPI_CMD_OPT_NONE)
+    tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
 	
 def quad_enable():
     id = read_id()
