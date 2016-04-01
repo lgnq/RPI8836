@@ -368,12 +368,21 @@ def quad_enable():
         status = status1_read()
         if (status & 0x40):
             print 'SPI flash is already in QUAD mode'
-            return
         else:
             write_enable()
             status1_write(status | 0x40)
             write_disable()
             print 'SPI flash is in QUAD mode'
+            
+        if (id[1] == 0x20):
+            if (id[2] == 0x19):
+                enter_4b_mode()
+                
+                status = status2_read()
+                if (status & 0x20):
+                    print 'SPI flash is in 4 Byte mode'
+                else:
+                    print 'SPI flash is not in 4 Byte mode'
     elif (id[0] == 0xC8):   #GD
         if (id[1] == 0x40):
             if (id[2] == 0x20):     #GD25Q512MC
