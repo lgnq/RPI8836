@@ -820,7 +820,7 @@ def crc_check(spiaddr, length):
     if (status & 0x20):     #in 4B mode      
         tw8836.write_page(0x04)
         
-        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + 0x20 + DMA_CMD_COUNT_5)
+        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | (DMA_ACCESS_MODE_FIX << 4) | DMA_CMD_COUNT_5)
         
         tw8836.write(0xF6, 0x04)	#Reg Buffer
         tw8836.write(0xF7, 0xD0)
@@ -851,7 +851,7 @@ def crc_check(spiaddr, length):
     else:
         tw8836.write_page(0x04)
         
-        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + 0x20 + DMA_CMD_COUNT_4)
+        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | (DMA_ACCESS_MODE_FIX << 4) | DMA_CMD_COUNT_4)
         
         tw8836.write(0xF6, 0x04)	#Reg Buffer
         tw8836.write(0xF7, 0xD0)
