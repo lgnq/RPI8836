@@ -109,13 +109,13 @@ def read_id():
     #read id command
     tw8836.write(0xFA, SPICMD_RDID)
 
-    tw8836.write(0xF6, 0x04)
-    tw8836.write(0xF7, 0xD0)
+    tw8836.write(0xF6, 0x04)    #I2C DMA buffer index page  0x4D0 
+    tw8836.write(0xF7, 0xD0)    #I2C DMA buffer index
 
     #read data length
-    tw8836.write(0xF5, 0x00)
-    tw8836.write(0xF8, 0x00)
-    tw8836.write(0xF9, 0x03)
+    tw8836.write(0xF5, 0x00)    #I2C DMA Read/Write data count high byte after command
+    tw8836.write(0xF8, 0x00)    #I2C DMA Read/Write data count mid byte after command
+    tw8836.write(0xF9, 0x03)    #I2C DMA Read/Write data count low byte after command
 
     #start DMA write (no BUSY check)
     tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
@@ -306,7 +306,7 @@ def write_enable():
 	print 'REG0x4F4 is', hex(tmp)
 	if (tmp & 0x01):
 		print 'oops... you need lv_reset!'
-	
+
 	tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
     
     #write enable command
