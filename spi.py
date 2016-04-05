@@ -119,6 +119,11 @@ def read_id():
 
     #start DMA write (no BUSY check)
     tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+    
+    #wait while I2C DMA Start command execution bit is cleared
+    while (tw8836.read(0xF4) & 0x01):
+        if (define.DEBUG == define.ON):
+            print 'DMA is busy'
 
     manufacture_id = tw8836.read(0xD0)
     device_id_1 = tw8836.read(0xD1)
