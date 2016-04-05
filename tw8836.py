@@ -780,8 +780,8 @@ def init_regs(regs):
 
 def init():
 	id = read_id()
-	print 'id is', hex(id[0])
-	print 'rev is', hex(id[1])
+	print 'TW88xx id is', hex(id[0])
+	print 'TW88xx rev is', hex(id[1])
 
 	if (id[0] == 0x36):
 		if (id[1] == 0x11):

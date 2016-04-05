@@ -129,29 +129,54 @@ def read_id():
     device_id_1 = tw8836.read(0xD1)
     device_id_2 = tw8836.read(0xD2)
 
-    print 'manufacture id is', hex(manufacture_id)
-    print 'device id 1 is', hex(device_id_1)
-    print 'device id 2 is', hex(device_id_2)
+    print 'SPI flash manufacture id is', hex(manufacture_id)
+    print 'SPI flash device id 1 is', hex(device_id_1)
+    print 'SPI flash device id 2 is', hex(device_id_2)
 
     if (manufacture_id == 0x1C):
         print 'xxx SPI flash detected'
     elif (manufacture_id == 0xC2):
-        print 'MXIC SPI flash detected'
+        if (device_id_1 == 0x20):
+            if (device_id_2 == 0x16):
+                size = 4
+                print 'MXIC SPI flash [MX25L3233F] detected, size = 32Mbit[4MB]'   
+            elif (device_id_2 == 0x17):
+                size = 8
+                print 'MXIC SPI flash [MX25L6435E] detected, size = 64Mbit[8MB]'                   
+            elif (device_id_2 == 0x18):
+                size = 16
+                print 'MXIC SPI flash [MX25L12835E/F] detected, size = 128Mbit[16MB]'        
+            elif (device_id_2 == 0x19):
+                size = 32
+                print 'MXIC SPI flash [MX25L25635E/F] detected, size = 256Mbit[32MB]'
+            elif (device_id_2 == 0x1A):
+                size = 64
+                print 'MXIC SPI flash [MX66L51235F] detected, size = 512Mbit[64MB]'
+            else:
+                print 'wrong MXIC SPI flash detected'
     elif (manufacture_id == 0xC8):
         if (device_id_1 == 0x40):
             if (device_id_2 == 0x20):
+                size = 64
                 print 'GD SPI flash [GD25Q512MC] detected'
             elif (device_id_2 == 0x19):
+                size = 32
                 print 'GD SPI flash [GD25Q256C] detected'
             elif (device_id_2 == 0x18):
+                size = 16
                 print 'GD SPI flash [GD25Q128C] detected'
             elif (device_id_2 == 0x17):
+                size = 8
                 print 'GD SPI flash [GD25Q64C] detected'
             else:
                 print 'wrong GD SPI flash detected'
     else:
         print 'wrong SPI flash ID detected'               
 
+    if (size > 16):
+        print 'SPI flash size is', size
+        print 'SPI flash size is bigger than 16MB, should be \033[1;40;32mEN4B\033[0m!'
+        
     return manufacture_id, device_id_1, device_id_2
 
 def status1_read():

@@ -19,4 +19,6 @@ def onoff_control(onoff):
             
     return 0
     
+def devalue_set():
+    tw8836.write_page(0x02)    
     
