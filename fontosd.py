@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*- coding: utf-8 -*-
 
 import define
 import tw8836
@@ -69,14 +70,14 @@ def font_width_height_set(width, height):
         val |= 0x10
     elif (width == 12):
         val &= ~0x10
-    else
+    else:
         print 'font width is wrong, it must be 12 or 16'
         return
         
     tw8836.write(0x00, val)
     
-	tw8836.write(REG_FOSD_CHEIGHT, height >> 1) 					#Font height(2~32)
-	tw8836.write(REG_FOSD_MUL_CON, (width >> 2) * (height >> 1))	#sub-font total count.    
+    tw8836.write(REG_FOSD_CHEIGHT, height >> 1) 					#Font height(2~32)
+    tw8836.write(REG_FOSD_MUL_CON, (width >> 2) * (height >> 1))	#sub-font total count.    
 
 """
  set FOSD blink attribute
@@ -90,8 +91,8 @@ def blink_onoff(onoff):
     tw8836.write_page(0x03)
     
     val = tw8836.read(0x04)
-	if (onoff):
+    if (onoff):
         tw8836.write(0x04, val | 0x80)
-	else:
+    else:
         tw8836.write(0x04, val & ~0x80)
     

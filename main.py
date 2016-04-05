@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*- coding: utf-8 -*-
 
 import define
 import tw8836
@@ -16,7 +17,7 @@ revision = tw8836.read(0x01)
 print 'revision is', hex(revision)
 """
 
-print 'this is tw8836 demo using raspberrypi2'
+print 'this is tw8836 demo using raspberrypi 2'
 
 tw8836.init()
 
@@ -47,3 +48,4 @@ spi.program_test()
 
 fontosd.onoff_control(define.ON)
 bmposd.onoff_control(define.ON)
+
