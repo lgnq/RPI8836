@@ -791,3 +791,11 @@ def init():
 	else:
 		print 'wrong TW88xx ID detected!'
 
+def wait_vblank(n):
+    write_page(0x00)
+    
+    for i in range(n):
+        write(0x02, 0xFF)
+        while ((read(0x02) & 0x40) == 0x00):
+            print 'wait vblank'
+            

@@ -6,6 +6,7 @@ import tw8836
 import spi
 import fontosd
 import bmposd
+import sx1505
 
 """
 tw8836.write_page(0x00)
@@ -20,6 +21,10 @@ print 'revision is', hex(revision)
 print 'this is tw8836 demo using raspberrypi 2'
 
 tw8836.init()
+
+print 'sx1505', hex(sx1505.read(0x00))
+print 'sx1505', hex(sx1505.read(0x01))
+
 
 """
 tw88xx_id = tw8836.read_id()
@@ -48,4 +53,6 @@ spi.program_test()
 
 fontosd.onoff_control(define.ON)
 bmposd.onoff_control(define.ON)
+
+tw8836.wait_vblank(1)
 
