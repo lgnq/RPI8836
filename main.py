@@ -22,8 +22,11 @@ print 'this is tw8836 demo using raspberrypi 2'
 
 tw8836.init()
 
-print 'sx1505', hex(sx1505.read(0x00))
-print 'sx1505', hex(sx1505.read(0x01))
+try:
+	print 'sx1505', hex(sx1505.read(0x00))
+	print 'sx1505', hex(sx1505.read(0x01))
+except IOError:
+	print 'not find SX1505 at address 0x20'
 
 
 """
