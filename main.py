@@ -23,10 +23,21 @@ print 'this is tw8836 demo using raspberrypi 2'
 tw8836.init()
 
 try:
-	print 'sx1505', hex(sx1505.read(0x00))
-	print 'sx1505', hex(sx1505.read(0x01))
+    print 'sx1505[dat] =', hex(sx1505.read(0x00))
+    print 'sx1505[dir] =', hex(sx1505.read(0x01))
+
+    sx1505.pin_setup(sx1505.SX1504_PIN4_LVDSTX, sx1505.SX1504_DIR_OUT, 1)    
+    
+    print 'sx1505[dat] =', hex(sx1505.read(0x00))
+    print 'sx1505[dir] =', hex(sx1505.read(0x01))    
+    
+    sx1505.write(0x00, 0x50)
+    sx1505.write(0x01, 0xEC)
+    
+    print 'sx1505[dat] =', hex(sx1505.read(0x00))
+    print 'sx1505[dir] =', hex(sx1505.read(0x01))        
 except IOError:
-	print '\033[1;40;31mNot\033[0m find SX1505 at address 0x20'
+    print '\033[1;40;31mNot\033[0m find SX1505 at address 0x20'
 
 
 """
@@ -57,5 +68,5 @@ spi.program_test()
 fontosd.onoff_control(define.ON)
 bmposd.onoff_control(define.ON)
 
-tw8836.wait_vblank(1)
+#tw8836.wait_vblank(1)
 
