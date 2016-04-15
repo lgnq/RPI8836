@@ -10,23 +10,27 @@ import sx1505
 
 print 'this is tw8836 demo using raspberrypi 2'
 
-tw8836.init()
+tw8836.detect()
 
-try:
-    print 'Enable LVDS RX'
-    sx1505.lvds_rx_onoff(define.ON)
-    print 'FPPWC ON'
-    sx1505.fppwc_onoff(define.ON)
-    
-    #sx1505.fpbias_onoff(define.ON)
-except IOError:
-    print '\033[1;40;31mNot\033[0m find SX1505 at address 0x20'
-
-spi.quad_enable()
+spi.init()
 
 #spi.sector_erase(0)
 spi.program_test()
 
+try:
+    print 'Enable LVDS RX'
+    sx1505.lvds_rx_onoff(define.ON)
+    
+    print 'FPPWC ON'
+    sx1505.fppwc_onoff(define.ON)
+    
+    #print 'FPBIAS ON'
+    #sx1505.fpbias_onoff(define.ON)
+except IOError:
+    print '\033[1;40;31mNot\033[0m find SX1505 at address 0x20'
+
+tw8836.init()
+    
 fontosd.onoff_control(define.ON)
 bmposd.onoff_control(define.ON)
 

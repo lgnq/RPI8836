@@ -770,7 +770,7 @@ def mcu_return():
 	write(0xED, 0x55)
 	write(0xED, 0xAA)
 	write(0xEC, 0x01)	 
-
+    
 def init_regs(regs):
 	i = 0
 
@@ -785,7 +785,7 @@ def init_regs(regs):
 
 		i = i + 2
 
-def init():
+def detect():
 	id = read_id()
 	print 'TW88xx id is', hex(id[0])
 	print 'TW88xx rev is', hex(id[1])
@@ -793,10 +793,13 @@ def init():
 	if (id[0] == 0x36):
 		if (id[1] == 0x11):
 			print 'find \033[1;40;32mTW8836B2\033[0m!'
-			init_regs(regs)
+			#init_regs(regs)
 	else:
 		print 'wrong TW88xx ID detected!'
 
+def init():
+    init_regs(regs)
+    
 def wait_vblank(n):
     write_page(0x00)
     

@@ -27,11 +27,11 @@ DMA_CMD_COUNT_3 = 3
 DMA_CMD_COUNT_4 = 4
 DMA_CMD_COUNT_5 = 5
 
-SPI_CMD_OPT_NONE		 = 0x00
-SPI_CMD_OPT_BUSY		 = 0x04
-SPI_CMD_OPT_WRITE		 = 0x02
-SPI_CMD_OPT_WRITE_BUSY	 = 0x06
-SPI_CMD_OPT_WRITE_BUSY_AUTO	 = 0x16
+SPI_CMD_OPT_NONE         = 0x00
+SPI_CMD_OPT_BUSY         = 0x04
+SPI_CMD_OPT_WRITE         = 0x02
+SPI_CMD_OPT_WRITE_BUSY     = 0x06
+SPI_CMD_OPT_WRITE_BUSY_AUTO     = 0x16
 
 """
 #-----------------------------------------------------------------------------
@@ -331,24 +331,24 @@ def status3_write(status):
             print 'wait...'
 
 def write_enable():
-	tw8836.write_page(0x04)
-	
-	tmp = tw8836.read(0xF4)
-	print 'REG0x4F4 is', hex(tmp)
-	if (tmp & 0x01):
-		print 'oops... you need lv_reset!'
+    tw8836.write_page(0x04)
+    
+    tmp = tw8836.read(0xF4)
+    print 'REG0x4F4 is', hex(tmp)
+    if (tmp & 0x01):
+        print 'oops... you need lv_reset!'
 
-	tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
     
     #write enable command
-	tw8836.write(0xFA, SPICMD_WREN)
+    tw8836.write(0xFA, SPICMD_WREN)
 
     #write data length    
-	tw8836.write(0xF5, 0)
-	tw8836.write(0xF8, 0)	
-	tw8836.write(0xF9, 0)
-	
-	tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
+    tw8836.write(0xF5, 0)
+    tw8836.write(0xF8, 0)    
+    tw8836.write(0xF9, 0)
+    
+    tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
 
 def write_disable():
     tw8836.write_page(0x04)
@@ -369,11 +369,11 @@ def write_disable():
 def enter_4b_mode():
     tw8836.write_page(0x04)
     
-    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + DMA_CMD_COUNT_1)	
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + DMA_CMD_COUNT_1)    
     
-    tw8836.write(0xF5, 0)	#length high
-    tw8836.write(0xF8, 0)	#length middle
-    tw8836.write(0xF9, 0)	#length low
+    tw8836.write(0xF5, 0)    #length high
+    tw8836.write(0xF8, 0)    #length middle
+    tw8836.write(0xF9, 0)    #length low
     
     tw8836.write(0xFA, SPICMD_EN4B)
     tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
@@ -383,13 +383,13 @@ def exit_4b_mode():
     
     tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + DMA_CMD_COUNT_1)
     
-    tw8836.write(0xF5, 0)	#length high
-    tw8836.write(0xF8, 0)	#length middle
-    tw8836.write(0xF9, 0)	#length low
+    tw8836.write(0xF5, 0)    #length high
+    tw8836.write(0xF8, 0)    #length middle
+    tw8836.write(0xF9, 0)    #length low
     
     tw8836.write(0xFA, SPICMD_EX4B)
     tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
-	
+    
 def quad_enable():
     id = read_id()
 
@@ -431,7 +431,7 @@ def quad_enable():
                 
                 status = status2_read()
                 if (status & 0x20):
-                	print 'SPI flash is in 4 Byte mode'
+                    print 'SPI flash is in 4 Byte mode'
                 else:
                     print 'SPI flash is not in 4 Byte mode'
             elif (id[2] == 0x19):   #GD25Q256C            
@@ -459,7 +459,7 @@ def quad_enable():
 def dma_spi_to_xram(spi_addr, xram_addr, size):
     status = status2_read()
 
-    if (status & 0x20):		#in 4B mode
+    if (status & 0x20):        #in 4B mode
         tw8836.write_page(0x04)
     
         tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
@@ -615,7 +615,7 @@ def sector_erase(sector_addr):
         tw8836.write(0xFB, (sector_addr >> 24))
         tw8836.write(0xFC, (sector_addr >> 16))
         tw8836.write(0xFD, (sector_addr >> 8))
-        tw8836.write(0xFE, (sector_addr))	
+        tw8836.write(0xFE, (sector_addr))    
 
         #write data length
         tw8836.write(0xF5, 0x0)
@@ -692,7 +692,7 @@ def block_erase(block_addr):
         tw8836.write(0xFB, (block_addr >> 24))
         tw8836.write(0xFC, (block_addr >> 16))
         tw8836.write(0xFD, (block_addr >> 8))
-        tw8836.write(0xFE, (block_addr))	
+        tw8836.write(0xFE, (block_addr))    
 
         #write data length
         tw8836.write(0xF5, 0x0)
@@ -746,7 +746,7 @@ def block_erase(block_addr):
         
         #printf("\r\nblock addr[0x%x] erase finished!\r\n", block_addr)
 
-def chip_erase():		
+def chip_erase():        
     write_enable()
 
     tw8836.write_page(0x04)
@@ -853,7 +853,7 @@ def crc_check(spiaddr, length):
         
         tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | (DMA_ACCESS_MODE_FIX << 4) | DMA_CMD_COUNT_5)
         
-        tw8836.write(0xF6, 0x04)	#Reg Buffer
+        tw8836.write(0xF6, 0x04)    #Reg Buffer
         tw8836.write(0xF7, 0xD0)
         
         tw8836.write(0xF5, (length>>16))
@@ -884,7 +884,7 @@ def crc_check(spiaddr, length):
         
         tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | (DMA_ACCESS_MODE_FIX << 4) | DMA_CMD_COUNT_4)
         
-        tw8836.write(0xF6, 0x04)	#Reg Buffer
+        tw8836.write(0xF6, 0x04)    #Reg Buffer
         tw8836.write(0xF7, 0xD0)
         
         tw8836.write(0xF5, (length>>16))
@@ -909,7 +909,28 @@ def crc_check(spiaddr, length):
             return 2;
         """
         return 0; 
-        
+
+def spi_clk_recover_27mhz_source():
+    tw8836.write_page(0x04)
+    
+    #Clock
+    temp = tw8836.read(0xE1)
+    print 'REG0x4E1 =', hex(temp)
+    if (temp & 0x30):
+        print' 27MHz'
+        tw8836.write(0xE1, temp & ~0x30)
+
+    #SPI Read Mode
+    temp = tw8836.read(0xC0)
+    print 'REG0x4C0 =', hex(temp)    
+    if (temp & 0x07):
+        print' Slow'
+        tw8836.write(0xC0, temp & 0xF8)
+
+def init():
+    spi_clk_recover_27mhz_source()
+    quad_enable()
+    
 def program_test():
     data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
 
