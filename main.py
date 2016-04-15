@@ -8,16 +8,6 @@ import fontosd
 import bmposd
 import sx1505
 
-"""
-tw8836.write_page(0x00)
-
-id = tw8836.read(0x00)
-print 'id is', hex(id)
-
-revision = tw8836.read(0x01)
-print 'revision is', hex(revision)
-"""
-
 print 'this is tw8836 demo using raspberrypi 2'
 
 tw8836.init()
@@ -27,33 +17,10 @@ try:
     sx1505.lvds_rx_onoff(define.ON)
     print 'FPPWC ON'
     sx1505.fppwc_onoff(define.ON)
-    #sx1505.fpbias_onoff(define.ON)
     
-    print 'sx1505[dat] =', hex(sx1505.read(0x00))
-    print 'sx1505[dir] =', hex(sx1505.read(0x01))    
+    #sx1505.fpbias_onoff(define.ON)
 except IOError:
     print '\033[1;40;31mNot\033[0m find SX1505 at address 0x20'
-
-
-"""
-tw88xx_id = tw8836.read_id()
-print 'id is', hex(tw88xx_id[0])
-print 'rev is', hex(tw88xx_id[1])
-
-if (tw88xx_id[0] == 0x36):
-	if (tw88xx_id[1] == 0x11):
-		print 'TW8836B2 is founded!'
-		tw8836.init()
-	else:
-		print 'TW8836A is founded!'
-else:
-	print 'unknown device!'		
-"""
-
-"""
-spi_id = spi.read_id()
-print spi_id
-"""
 
 spi.quad_enable()
 
