@@ -65,15 +65,15 @@ def fppwc_onoff(onoff):
 
 def fpbias_onoff(onoff):
     if (onoff):
-        pin_setup(SX1504_PIN0_FP_BIAS, SX1504_DIR_OUT, 1)
-    else:
         pin_setup(SX1504_PIN0_FP_BIAS, SX1504_DIR_OUT, 0)
+    else:
+        pin_setup(SX1504_PIN0_FP_BIAS, SX1504_DIR_OUT, 1)
         
 def lvds_rx_onoff(onoff):
     if (onoff):
         pin_setup(SX1504_PIN4_LVDSTX, SX1504_DIR_OUT, 1)
     else:
-        pin_setup(SX1504_PIN4_LVDSTX, SX1504_DIR_OUT, 1)
+        pin_setup(SX1504_PIN4_LVDSTX, SX1504_DIR_OUT, 0)
 
         
     
