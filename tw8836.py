@@ -793,7 +793,7 @@ def init():
 	if (id[0] == 0x36):
 		if (id[1] == 0x11):
 			print 'find \033[1;40;32mTW8836B2\033[0m!'
-			#init_regs(regs)
+			init_regs(regs)
 	else:
 		print 'wrong TW88xx ID detected!'
 
