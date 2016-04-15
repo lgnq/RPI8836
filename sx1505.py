@@ -5,14 +5,14 @@ import define
 import smbus
 
 SX1504_DATA_REG            = 0    #data register index
-SX1504_DIR_REG            = 1    #direction register index
+SX1504_DIR_REG             = 1    #direction register index
 
-SX1504_DIR_IN            = 1    #input direction
-SX1504_DIR_OUT            = 0    #output direction
+SX1504_DIR_IN              = 1    #input direction
+SX1504_DIR_OUT             = 0    #output direction
 
-SX1504_PIN1_FP_PWC        = 0
+SX1504_PIN1_FP_PWC         = 0
 SX1504_PIN0_FP_BIAS        = 1
-SX1504_PIN4_LVDSTX        = 4
+SX1504_PIN4_LVDSTX         = 4
 
 ADDR = 0x20
 bus = smbus.SMBus(1)
@@ -53,10 +53,30 @@ def pin_setup(pin, dir, val):
             data_reg &= ~mask
 
         write(SX1504_DIR_REG, dir_reg)        #write direction first,
-        write(SX1504_DATA_REG, data_reg)    #and then write data.
+        write(SX1504_DATA_REG, data_reg)      #and then write data.
         
         return 0
+        
+def fppwc_onoff(onoff):
+    if (onoff):
+        pin_setup(SX1504_PIN1_FP_PWC, SX1504_DIR_OUT, 0)
+    else:
+        pin_setup(SX1504_PIN1_FP_PWC, SX1504_DIR_OUT, 1)
 
+def fpbias_onoff(onoff):
+    if (onoff):
+        pin_setup(SX1504_PIN0_FP_BIAS, SX1504_DIR_OUT, 1)
+    else:
+        pin_setup(SX1504_PIN0_FP_BIAS, SX1504_DIR_OUT, 0)
+        
+def lvds_rx_onoff(onoff):
+    if (onoff):
+        pin_setup(SX1504_PIN4_LVDSTX, SX1504_DIR_OUT, 1)
+    else:
+        pin_setup(SX1504_PIN4_LVDSTX, SX1504_DIR_OUT, 1)
+
+        
+    
 
 
 
