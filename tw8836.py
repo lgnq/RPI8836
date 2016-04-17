@@ -770,6 +770,17 @@ def mcu_return():
 	write(0xED, 0x55)
 	write(0xED, 0xAA)
 	write(0xEC, 0x01)	 
+
+    write_page(0x00);
+    
+    dat = read(0x07)
+
+    if (onoff):
+        dat |= 0x80
+    else:
+        dat &= ~(0x08)
+        
+    write(0x07, dat)    
     
 def init_regs(regs):
 	i = 0
