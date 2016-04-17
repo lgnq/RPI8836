@@ -811,6 +811,84 @@ def detect():
 
 def init():
     init_regs(regs)
+
+def sspll1_get_freq_reg():
+    write_page(0x00)
+    
+    fpll = read(0xF8) & 0x0F
+    fpll <<= 8
+    fpll |= read(0xF9)
+    fpll <<= 8
+    fpll |= read(0xFA)
+    
+    return fpll
+
+def sspll2_get_freq_reg():
+    write_page(0x00)
+    
+    fpll = read(0xE8) & 0x0F
+    fpll <<= 8
+    fpll |= read(0xE9)
+    fpll <<= 8
+    fpll |= read(0xEA)
+    
+    return fpll
+
+def sspll1_get_post():
+    write_page(0x00)
+    
+    post = read(0xFD)
+    post = (post>>6)&0x03
+    
+    return post
+
+def sspll2_get_post():
+    write_page(0x00)
+    
+    post = read(0xED)
+    post = (post>>6)&0x03
+    
+    return post
+    
+def sspll_fpll2freq(fpll, post):
+    freq = fpll >> 6
+    freq *= 421875
+    freq >>= 3
+    freq >>= post
+    
+    return freq
+    
+"""
+    get SSPLL 1 Frequency.
+
+
+	FPLL = REG(0x0f8[3:0], 0x0f9[7:0], 0x0fa[7:0])
+	POST = REG(0x0fd[7:6])
+	PLL Osc Freq = 108MHz * FPLL / 2^17 / 2^POST
+"""
+def sspll1_get_freq():
+    fpll = sspll1_get_freq_reg()
+    post = sspll1_get_post()
+    
+    freq = sspll_fpll2freq(fpll, post)
+    
+    print 'SSPLL 1 Frequency is', freq, 'POST is', post
+
+"""
+    get SSPLL 2 Frequency.
+
+
+	FPLL = REG(0x0f8[3:0], 0x0f9[7:0], 0x0fa[7:0])
+	POST = REG(0x0fd[7:6])
+	PLL Osc Freq = 108MHz * FPLL / 2^17 / 2^POST
+"""
+def sspll2_get_freq():
+    fpll = sspll2_get_freq_reg()
+    post = sspll2_get_post()
+    
+    freq = sspll_fpll2freq(fpll, post)
+    
+    print 'SSPLL 2 Frequency is', freq, 'POST is', post
     
 def wait_vblank(n):
     write_page(0x00)

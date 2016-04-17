@@ -30,6 +30,10 @@ except IOError:
     print '\033[1;40;31mNot\033[0m find SX1505 at address 0x20'
 
 tw8836.init()
+
+tw8836.sspll1_get_freq()
+tw8836.sspll2_get_freq()
+
 tw8836.rb_swap(define.ON)
     
 fontosd.onoff_control(define.ON)
