@@ -771,6 +771,7 @@ def mcu_return():
 	write(0xED, 0xAA)
 	write(0xEC, 0x01)	 
 
+def rb_swap(onoff):
     write_page(0x00);
     
     dat = read(0x07)
