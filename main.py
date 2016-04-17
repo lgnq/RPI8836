@@ -15,7 +15,7 @@ tw8836.detect()
 spi.init()
 
 #spi.sector_erase(0)
-spi.program_test()
+#spi.program_test()
 
 try:
     print 'Enable LVDS RX'
