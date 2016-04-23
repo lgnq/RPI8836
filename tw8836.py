@@ -872,7 +872,9 @@ def sspll1_get_freq():
     
     freq = sspll_fpll2freq(fpll, post)
     
-    print 'SSPLL 1 Frequency is', freq, 'POST is', post
+    #print 'SSPLL 1 Frequency is', freq, 'POST is', post
+    
+    return freq
 
 """
     get SSPLL 2 Frequency.
@@ -888,7 +890,61 @@ def sspll2_get_freq():
     
     freq = sspll_fpll2freq(fpll, post)
     
-    print 'SSPLL 2 Frequency is', freq, 'POST is', post
+    #print 'SSPLL 2 Frequency is', freq, 'POST is', post
+
+    return freq
+    
+def spi_clk_get():
+    write_page(0x04)
+
+    SPI_CK_SEL = (read(0xE1) >> 4) & 0x3
+    if (SPI_CK_SEL == 0x00):
+        return 27000000
+    elif (SPI_CK_SEL == 0x01):
+        return 32000
+    elif (SPI_CK_SEL == 0x02):
+        SPI_CK_DIV = read(0xE1) & 0xF
+        
+        if (SPI_CK_DIV == 0x0):
+            div = 1
+        elif (SPI_CK_DIV == 0x1):
+            div = 1.5
+        elif (SPI_CK_DIV == 0x2):
+            div = 2
+        elif (SPI_CK_DIV == 0x3):
+            div = 2.5
+        elif (SPI_CK_DIV == 0x4):
+            div = 3
+        elif (SPI_CK_DIV == 0x5):
+            div = 3.5
+        elif (SPI_CK_DIV == 0x6):
+            div = 4
+        elif (SPI_CK_DIV == 0x7):
+            div = 5
+        elif (SPI_CK_DIV == 0x8):
+            div = 8
+        elif (SPI_CK_DIV == 0x9):
+            div = 16
+        elif (SPI_CK_DIV == 0xA):
+            div = 32
+            
+        PLL_SEL = read(0xE0) & 0x1
+        
+        if (PLL_SEL == 0x0):
+            write_page(0x0)
+        
+            SPI_PLL_SEL = (read(0x4B) >> 5) & 0x1
+            
+            if (SPI_PLL_SEL == 0x0):
+                return sspll1_get_freq() / div
+            elif (SPI_PLL_SEL == 0x1):
+                return sspll2_get_freq() / div
+        elif (PLL_SEL == 0x1):
+            return 108000000 / div
+
+"""
+def spi_clk_set():
+"""
     
 def wait_vblank(n):
     write_page(0x00)

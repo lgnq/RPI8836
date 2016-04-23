@@ -34,6 +34,8 @@ tw8836.init()
 tw8836.sspll1_get_freq()
 tw8836.sspll2_get_freq()
 
+print 'SPI CLK is:', tw8836.spi_clk_get()
+
 tw8836.rb_swap(define.ON)
     
 fontosd.onoff_control(define.ON)
