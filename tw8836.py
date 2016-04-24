@@ -893,6 +893,94 @@ def sspll2_get_freq():
     #print 'SSPLL 2 Frequency is', freq, 'POST is', post
 
     return freq
+
+def sspll_freq2fpll(freq, post):
+    fpll = freq/1000
+    fpll <<= post
+    fpll <<= 12
+    fpll = fpll / 3375
+    
+    return fpll
+
+def sspll1_set_freq_reg(fpll):
+    write_page(0x00)
+    
+    write(0xFA, fpll & 0xFF)
+    write(0xF9, (fpll>>8) & 0xFF)
+    write(0xF8, (fpll>>16) & 0xFF)
+
+def sspll2_set_freq_reg(fpll):
+    write_page(0x00)
+    
+    write(0xEA, fpll & 0xFF)
+    write(0xE9, (fpll>>8) & 0xFF)
+    write(0xE8, (fpll>>16) & 0xFF)
+    
+def sspll1_set_analog_control(value):
+    write_page(0x00)
+    
+    write(0xFD, value)
+
+def sspll2_set_analog_control(value):
+    write_page(0x00)
+    
+    write(0xED, value)
+    
+def sspll1_set_freq(freq):
+    if (freq > 150000000):
+        print 'ERROR! Max SSPLL frequency is 150MHz'
+        return
+        
+    if (freq < 27000000):
+        vco = 2
+        curr = 0
+        post = 2
+    elif (freq < 54000000):
+        vco = 2
+        curr = 1
+        post = 1
+    elif (freq < 108000000):
+        vco = 2
+        curr = 2
+        post = 0
+    else:
+        vco = 3
+        curr = 3
+        post = 0
+        
+    curr = vco + 1
+
+    fpll = sspll_freq2fpll(freq, post)
+    sspll1_set_freq_reg(fpll)
+    sspll1_set_analog_control((vco << 4) | (post << 6) | curr)
+
+def sspll2_set_freq(freq):
+    if (freq > 150000000):
+        print 'ERROR! Max SSPLL frequency is 150MHz'
+        return
+        
+    if (freq < 27000000):
+        vco = 2
+        curr = 0
+        post = 2
+    elif (freq < 54000000):
+        vco = 2
+        curr = 1
+        post = 1
+    elif (freq < 108000000):
+        vco = 2
+        curr = 2
+        post = 0
+    else:
+        vco = 3
+        curr = 3
+        post = 0
+        
+    curr = vco + 1
+
+    fpll = sspll_freq2fpll(freq, post)
+    sspll2_set_freq_reg(fpll)
+    sspll2_set_analog_control((vco << 4) | (post << 6) | curr)
     
 def spi_clk_get():
     write_page(0x04)
