@@ -802,9 +802,9 @@ def read(addr, data, size):
     tw8836.write(0xDC, 0x0)    #xram addr low byte
 
     #read XMEM data register 0xDD  
-    for d in data:
-        d = tw8836.read(0xDD)
-    
+    for i in range(0, size):
+        data.append(tw8836.read(0xDD))
+        
     #XMEM access by TW8836
     tw8836.write(0xC2, tw8836.read(0xC2) & ~0x01)
 
