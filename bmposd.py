@@ -3,6 +3,7 @@
 
 import define
 import tw8836
+import spi
 
 def onoff_control(onoff):
     tw8836.write_page(0x04)
@@ -14,5 +15,14 @@ def onoff_control(onoff):
     else:
         tw8836.write(0x00, val & ~0x04)
 
+def header_parse(header):
+    print header
     
-    
+    if ((header[0] != ord('I')) and (header[1] != ord('T'))):
+        print 'ERROR! wrong osd header'
+
+def image_display(winno, image_addr):
+    header = []
+    spi.read(image_addr, header, 0x10)
+    header_parse(header)
+
