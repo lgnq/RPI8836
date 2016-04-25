@@ -44,7 +44,10 @@ tw8836.rb_swap(define.ON)
 fontosd.onoff_control(define.ON)
 bmposd.onoff_control(define.ON)
 
-bmposd.image_display(1, 0x100000)
+bmposd.image_display(bmposd.WINNO1, 0x100000, 0, 0, 800, 480)
+
+bmposd.color_fill_onoff(bmposd.WINNO1, define.ON)
+bmposd.color_fill_set(bmposd.WINNO1, 0, 0, 800, 480, 100)
 
 #tw8836.wait_vblank(1)
 
