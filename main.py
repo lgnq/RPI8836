@@ -31,7 +31,7 @@ except IOError:
 
 tw8836.init()
 
-tw8836.sspll1_set_freq(108000000)
+tw8836.sspll1_set_freq(72000000)
 tw8836.sspll2_set_freq(108000000)
 
 print 'SSPLL1 frequency is:', tw8836.sspll1_get_freq()
@@ -46,8 +46,26 @@ bmposd.onoff_control(define.ON)
 
 bmposd.image_display(bmposd.WINNO1, 0x100000, 0, 0, 800, 480)
 
-bmposd.color_fill_onoff(bmposd.WINNO1, define.ON)
-bmposd.color_fill_set(bmposd.WINNO1, 0, 0, 800, 480, 100)
+bmposd.color_fill_onoff(8, define.ON)
+bmposd.color_fill_set(8, 200, 200, 200, 200, 6)
+    
+bmposd.alpha_blending_onoff(8, define.ON)
+bmposd.alpha_blending_mode_set(8, bmposd.GLOBAL_MODE)
+bmposd.global_alpha_value_set(8, 50)
+    
+bmposd.window_onoff(8, define.ON)
+    
+"""
+for i in range(0, 10):
+    bmposd.color_fill_onoff(i, define.ON)
+    bmposd.color_fill_set(i, 20*i+50, 20*i+50, 100, 100, i)
+    
+    bmposd.alpha_blending_onoff(i, define.ON)
+    bmposd.alpha_blending_mode_set(i, bmposd.GLOBAL_MODE)
+    bmposd.global_alpha_value_set(i, 50)
+    
+    bmposd.window_onoff(i, define.ON)
+"""
 
 #tw8836.wait_vblank(1)
 
