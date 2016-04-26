@@ -92,9 +92,6 @@ def header_parse(mrle_spi_addr):
     if ((header[ID0_IDX] != ord('I')) or (header[ID1_IDX] != ord('T'))):
         print 'ERROR! wrong osd header'
     
-    for i in range(0, MRLE_HEADER_SIZE):
-        print hex(header[i])
-    
     width  = header[WIDTH_L_IDX] + (header[WIDTH_H_IDX] << 8)
     height = header[HEIGHT_L_IDX] + (header[HEIGHT_H_IDX] << 8)
     size   = (header[SIZE3_IDX]<<24) + (header[SIZE2_IDX]<<16) + (header[SIZE1_IDX]<<8) + header[SIZE0_IDX]
@@ -121,7 +118,9 @@ def header_parse(mrle_spi_addr):
     lut_spi_addr   = mrle_spi_addr + MRLE_HEADER_SIZE
     image_spi_addr = mrle_spi_addr + MRLE_HEADER_SIZE + lut_size
     
-    print width, height, size, colors, bpp, rle, lut_size, hex(lut_spi_addr), hex(image_spi_addr)
+    if (define.DEBUG == define.ON):
+        print width, height, size, colors, bpp, rle, lut_size, hex(lut_spi_addr), hex(image_spi_addr)
+    
     return width, height, bpp, rle, lut_size, lut_spi_addr, image_spi_addr
 
 def image_starting_addr_reg_set(winno, image_loc):

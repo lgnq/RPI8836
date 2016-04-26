@@ -1007,7 +1007,6 @@ def spi2lut(spi_addr, lut_addr, lut_size):
             if (define.DEBUG == define.ON):
                 print 'wait...' 
         """
-        print 'spi2lut DMA finished', spi_addr, lut_addr, lut_size
     else:
         write_enable()
 
