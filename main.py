@@ -47,6 +47,7 @@ bmposd.onoff_control(define.ON)
 #bmposd.devalue_set()
 
 bmposd.image_display(bmposd.WINNO1, 0x100000, 0, 0)
+bmposd.image_display(bmposd.WINNO3, 0x10E080, 0, 0)
 
 bmposd.color_fill_onoff(8, define.ON)
 bmposd.color_fill_set(8, 200, 200, 200, 200, 6)
