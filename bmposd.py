@@ -23,7 +23,7 @@ LUT_COLORS_IDX  = 13
 DUMMY0_IDX      = 14
 DUMMY1_IDX      = 15
 
-HEADER_SIZE     = 16
+MRLE_HEADER_SIZE     = 16
 
 WINNO0 = 0
 WINNO1 = 1
@@ -42,16 +42,20 @@ NO_INC      = 0x0
 BYTE_INC    = 0x1
 ADDR_INC    = 0x2
 
-width = 0
-height = 0
-size = 0
-colors = 0
-bpp = 0
-rle = 0
-lut_size = 0
-lut_loc = 0
-image_loc = 0
+def devalue_set():
+    tw8836.write_page(0x02)
+    
+    hde = tw8836.read(10)
+    pclko = tw8836.read(0x0D) & 0x03
+    pclko = 0
+    
+    temp = hde + pclko - 18
 
+    tw8836.write_page(0x04)
+    
+    tw8836.write(0x0E, temp>>8)
+    tw8836.write(0x0F, temp&0xFF)
+    
 def onoff_control(onoff):
     tw8836.write_page(0x04)
     
@@ -78,9 +82,9 @@ def window_onoff(winno, onoff):
         else:
             tw8836.write(0x40 + (winno-1)*0x10, temp & ~0x01)
 
-def header_parse(image_addr):
+def header_parse(mrle_spi_addr):
     header = []
-    spi.read(image_addr, header, 0x10)
+    spi.read(mrle_spi_addr, header, MRLE_HEADER_SIZE)
     
     if (define.DEBUG == define.ON):
         print header
@@ -88,14 +92,14 @@ def header_parse(image_addr):
     if ((header[ID0_IDX] != ord('I')) or (header[ID1_IDX] != ord('T'))):
         print 'ERROR! wrong osd header'
     
-    for i in range(0, 16):
+    for i in range(0, MRLE_HEADER_SIZE):
         print hex(header[i])
     
-    width = header[WIDTH_L_IDX] + (header[WIDTH_H_IDX] << 8)
+    width  = header[WIDTH_L_IDX] + (header[WIDTH_H_IDX] << 8)
     height = header[HEIGHT_L_IDX] + (header[HEIGHT_H_IDX] << 8)
-    size = (header[SIZE3_IDX]<<24) + (header[SIZE2_IDX]<<16) + (header[SIZE1_IDX]<<8) + header[SIZE0_IDX]
+    size   = (header[SIZE3_IDX]<<24) + (header[SIZE2_IDX]<<16) + (header[SIZE1_IDX]<<8) + header[SIZE0_IDX]
     colors = header[LUT_COLORS_IDX] + 1
-    rle = header[RLEDATA_CNT_IDX] & 0xF
+    rle    = header[RLEDATA_CNT_IDX] & 0xF
     
     if (colors == 256):
         bpp = 8
@@ -114,11 +118,11 @@ def header_parse(image_addr):
         
     lut_size = colors * 4
 
-    lut_loc = image_addr + HEADER_SIZE
-    image_loc = image_addr + HEADER_SIZE + lut_size
+    lut_spi_addr   = mrle_spi_addr + MRLE_HEADER_SIZE
+    image_spi_addr = mrle_spi_addr + MRLE_HEADER_SIZE + lut_size
     
-    print width, height, size, colors, bpp, rle, lut_size, hex(lut_loc), hex(image_loc)
-#    return width, height, size, colors, bpp, lut_size
+    print width, height, size, colors, bpp, rle, lut_size, hex(lut_spi_addr), hex(image_spi_addr)
+    return width, height, bpp, rle, lut_size, lut_spi_addr, image_spi_addr
 
 def image_starting_addr_reg_set(winno, image_loc):
     tw8836.write_page(0x04)
@@ -225,19 +229,19 @@ def win_pixel_width_set(winno, bpp):
     if (winno == WINNO0):
         temp = tw8836.read(0x20)
         if (bpp == 4):
-            tw8836.write(0x20, (temp&0x3F) | (0>>6))
+            tw8836.write(0x20, (temp&0x3F) | (0<<6))
         elif (bpp == 6):
-            tw8836.write(0x20, (temp&0x3F) | (1>>6))
+            tw8836.write(0x20, (temp&0x3F) | (1<<6))
         else:
-            tw8836.write(0x20, (temp&0x3F) | (2>>6))            
+            tw8836.write(0x20, (temp&0x3F) | (2<<6))            
     else:
         temp = tw8836.read(0x40 + (winno-1)*0x10)
         if (bpp == 4):
-            tw8836.write(0x40 + (winno-1)*0x10, (temp&0x3F) | (0>>6))
+            tw8836.write(0x40 + (winno-1)*0x10, (temp&0x3F) | (0<<6))
         elif (bpp == 6):
-            tw8836.write(0x40 + (winno-1)*0x10, (temp&0x3F) | (1>>6))
+            tw8836.write(0x40 + (winno-1)*0x10, (temp&0x3F) | (1<<6))
         else:
-            tw8836.write(0x40 + (winno-1)*0x10, (temp&0x3F) | (2>>6))
+            tw8836.write(0x40 + (winno-1)*0x10, (temp&0x3F) | (2<<6))
 
 def lut_offset_set(winno, offset):
     tw8836.write_page(0x04)
@@ -305,17 +309,26 @@ def lut_addr_set(addr):
     tw8836.write(0x10, temp | ((addr>>8)<<3))
     tw8836.write(0x11, addr&0xFF)
 
-def lut_load(winno, lut_addr):
+def lut_load(winno, lut_spi_addr, lut_size, lut_offset):
     lut_write_enable()
     lut_inc_select(ADDR_INC)
     lut_select(winno)
-    lut_addr_set(lut_addr)
+    lut_addr_set(lut_offset)
     
-    tw8836.write_page(0x04)
+    spi.spi2lut(lut_spi_addr, lut_offset, lut_size)
     
-def image_display(winno, image_addr, x, y, w, h):
-    header_parse(image_addr)
-    image_starting_addr_reg_set(winno, image_loc)
+def image_display(winno, mrle_spi_addr, x, y, w, h):
+    header = header_parse(mrle_spi_addr)
+    
+    width           = header[0]
+    height          = header[1] 
+    bpp             = header[2]
+    rle             = header[3]
+    lut_size        = header[4]
+    lut_spi_addr    = header[5]
+    image_spi_addr  = header[6]
+    
+    image_starting_addr_reg_set(winno, image_spi_addr)
     image_width_height_reg_set(winno, w, h)
     window_reg_set(winno, x, y, w, h)
     
@@ -326,8 +339,8 @@ def image_display(winno, image_addr, x, y, w, h):
     win_pixel_width_set(winno, bpp)
     lut_offset_set(winno, 0)
     rlc_set(winno, bpp, rle)
-
-    lut_load(winno, 0)
+    
+    lut_load(winno, lut_spi_addr, lut_size, 0)
     
     window_onoff(winno, define.ON)
 
