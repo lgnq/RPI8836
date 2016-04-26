@@ -316,7 +316,7 @@ def lut_load(winno, lut_spi_addr, lut_size, lut_offset):
     
     spi.spi2lut(lut_spi_addr, lut_offset, lut_size)
     
-def image_display(winno, mrle_spi_addr, x, y, w, h):
+def image_display(winno, mrle_spi_addr, x, y):
     header = header_parse(mrle_spi_addr)
     
     width           = header[0]
@@ -328,8 +328,8 @@ def image_display(winno, mrle_spi_addr, x, y, w, h):
     image_spi_addr  = header[6]
     
     image_starting_addr_reg_set(winno, image_spi_addr)
-    image_width_height_reg_set(winno, w, h)
-    window_reg_set(winno, x, y, w, h)
+    image_width_height_reg_set(winno, width, height)
+    window_reg_set(winno, x, y, width, height)
     
     alpha_blending_mode_set(winno, GLOBAL_MODE)
     global_alpha_value_set(winno, 0x50)
