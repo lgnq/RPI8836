@@ -11,7 +11,7 @@ import sx1505
 import time
 
 img = [
-0x000000,
+#0x000000,
 0x0015C0,
 0x0044A0,
 0x007390,
@@ -154,6 +154,39 @@ img = [
 0x1AFB50,
 ]
 
+img_norle = [
+0x000000,
+0x03F890,
+0x07F120,
+0x0BE9B0,
+0x0FE240,
+0x13DAD0,
+0x17D360,
+0x1BCBF0,
+0x1FC480,
+0x23BD10,
+0x27B5A0,
+0x2BAE30,
+0x2FA6C0,
+0x339F50,
+0x3797E0,
+0x3B9070,
+0x3F8900,
+0x438190,
+0x477A20,
+0x4B72B0,
+0x4F6B40,
+0x5363D0,
+0x575C60,
+0x5B54F0,
+0x5F4D80,
+0x634610,
+0x673EA0,
+0x6B3730,
+0x6F2FC0,
+0x732850,
+]
+
 print 'this is tw8836 demo using raspberrypi 2'
 
 tw8836.detect()
@@ -195,24 +228,55 @@ bmposd.onoff_control(define.ON)
 #bmposd.lut_load(bmposd.WINNO1, 0x800000, 0)
 #bmposd.image_display(bmposd.WINNO1, 0x800000, 200, 0, bmposd.PIXEL_ALPHA_MODE, 0x61, 0)
 
-bmposd.lut_load(bmposd.WINNO1, 0x800000, 0)
-bmposd.image_display(bmposd.WINNO1, 0x800000, 200, 0, bmposd.PIXEL_ALPHA_MODE, 0x61, 0)
+img_spi_addr = 0x600000
+img_list = img
 
-#bmposd.win_start_addr_set(bmposd.WINNO1, 0x800000+0x0015C0+16+256*4)
+bmposd.lut_load(bmposd.WINNO1, img_spi_addr+img_list[0], 0)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 0, 0x30)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 1, 0x40)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 2, 0x50)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 3, 0x60)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 4, 0x7F)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 5, 0x7F)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 6, 0x7F)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 7, 0x7F)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 8, 0x7F)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 9, 0x7F)
+bmposd.pixel_alpha_set(bmposd.WINNO1, 0, 10, 0x7F)
+
+bmposd.image_display(bmposd.WINNO1, img_spi_addr+img_list[0], 200, 0, bmposd.PIXEL_ALPHA_MODE, 0x8, 0)
+
+#bmposd.win_start_addr_set(bmposd.WINNO1, img_spi_addr+0x0015C0+16+256*4)
 #bmposd.rlc_set(bmposd.WINNO1, 8, 8)
 
-#bmposd.win_start_addr_set(bmposd.WINNO1, 0x800000+16+256*4)
+#bmposd.win_start_addr_set(bmposd.WINNO1, img_spi_addr+16+256*4)
 
-for d in img:
-    tw8836.wait_vblank(1)
-    bmposd.win_start_addr_set(bmposd.WINNO1, 0x800000+d+16+256*4)
-    bmposd.rlc_set(bmposd.WINNO1, 8, 8)
-    time.sleep(0.3)
-    #bmposd.image_display(bmposd.WINNO1, 0x800000+d, 200, 0, bmposd.PIXEL_ALPHA_MODE, 0x61, 0)
+bmposd.color_fill_onoff(2, define.ON)
+bmposd.win_onoff(2, define.ON)
+
+while (1):
+    for i in range(0, len(img_list)):
+        tw8836.wait_vblank(1)
+    
+        bmposd.rlc_set(bmposd.WINNO1, 8, 8)
+        bmposd.win_start_addr_set(bmposd.WINNO1, img_spi_addr+img_list[i]+16+256*4)
+        bmposd.color_fill_set(bmposd.WINNO2, 200, 200, i, 20, 0)
+
+        #bmposd.image_display(bmposd.WINNO1, img_spi_addr+d, 200, 0, bmposd.PIXEL_ALPHA_MODE, 0x8, 0)
+
+        #time.sleep(0.01)
+    
+    for i in range(0, len(img_list)):
+        tw8836.wait_vblank(1)
+        
+        n = len(img_list)-1-i
+        bmposd.win_start_addr_set(bmposd.WINNO1, img_spi_addr+img_list[n]+16+256*4)
+        bmposd.color_fill_set(bmposd.WINNO2, 200, 200, n, 20, 0)
 
 #bmposd.lut_load(bmposd.WINNO3, 0x10E080, 0)
 #bmposd.image_display(bmposd.WINNO3, 0x10E080, 0, 0, bmposd.NO_ALPHA_MODE, 50, 0)
 
+"""
 bmposd.color_fill_onoff(8, define.ON)
 bmposd.color_fill_set(8, 200, 200, 200, 200, 6)
     
@@ -221,6 +285,18 @@ bmposd.alpha_blending_mode_set(8, bmposd.GLOBAL_ALPHA_MODE)
 bmposd.global_alpha_value_set(8, 50)
     
 bmposd.win_onoff(8, define.ON)
+"""
+
+"""
+tw8836.wait_vblank(1)
+    
+bmposd.lut_load(bmposd.WINNO8, img_spi_addr+img_list[0], 0)
+bmposd.win_onoff(8, define.ON)
+bmposd.color_fill_onoff(8, define.ON)
+for i in range(0, 100):
+    bmposd.color_fill_set(8, 200, 200, i, 20, 0)
+    time.sleep(0.01)
+"""
     
 """
 for i in range(0, 10):
