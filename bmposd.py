@@ -35,8 +35,9 @@ WINNO6 = 6
 WINNO7 = 7
 WINNO8 = 8
 
-GLOBAL_MODE = 0
-PIXEL_MODE  = 1
+GLOBAL_ALPHA_MODE = 0
+PIXEL_ALPHA_MODE  = 1
+NO_ALPHA_MODE     = 2
 
 NO_INC      = 0x0
 BYTE_INC    = 0x1
@@ -66,7 +67,7 @@ def onoff_control(onoff):
     else:
         tw8836.write(0x00, val & ~0x04)
 
-def window_onoff(winno, onoff):
+def win_onoff(winno, onoff):
     tw8836.write_page(0x04)
     
     if (winno == WINNO0):
@@ -132,7 +133,7 @@ def header_parse(mrle_spi_addr):
     
     return width, height, bpp, rle, lut_size, lut_spi_addr, image_spi_addr
 
-def image_starting_addr_reg_set(winno, image_loc):
+def win_start_addr_set(winno, image_loc):
     tw8836.write_page(0x04)
 
     if (winno == WINNO0):
@@ -146,7 +147,7 @@ def image_starting_addr_reg_set(winno, image_loc):
         tw8836.write(0x49 + (winno-1)*0x10, image_loc>>4)
         tw8836.write(0x4F + (winno-1)*0x10, image_loc&0x0F)
 
-def image_width_height_reg_set(winno, width, height):
+def win_width_height_set(winno, width, height):
     tw8836.write_page(0x04)
 
     if (winno == WINNO0):
@@ -163,7 +164,7 @@ def image_width_height_reg_set(winno, width, height):
         tw8836.write(0x4A + (winno-1)*0x10, temp)
         tw8836.write(0x4B + (winno-1)*0x10, width & 0xFF)
 
-def window_reg_set(winno, x, y, w, h):
+def win_pos_size_set(winno, x, y, w, h):
     tw8836.write_page(0x04)
     
     if (winno == WINNO0):
@@ -208,15 +209,15 @@ def alpha_blending_mode_set(winno, mode):
     
     if (winno == WINNO0):
         temp = tw8836.read(0x20)    
-        if (mode == PIXEL_MODE):
+        if (mode == PIXEL_ALPHA_MODE):
             tw8836.write(0x20, temp | (1<<5))            
-        elif (mode == GLOBAL_MODE):
+        elif (mode == GLOBAL_ALPHA_MODE):
             tw8836.write(0x20, temp & ~(1<<5))        
     else:
         temp = tw8836.read(0x40 + (winno-1)*0x10)    
-        if (mode == PIXEL_MODE):
+        if (mode == PIXEL_ALPHA_MODE):
             tw8836.write(0x40 + (winno-1)*0x10, temp | (1<<5))            
-        elif (mode == GLOBAL_MODE):
+        elif (mode == GLOBAL_ALPHA_MODE):
             tw8836.write(0x40 + (winno-1)*0x10, temp & ~(1<<5)) 
 
 """
@@ -231,7 +232,7 @@ def global_alpha_value_set(winno, alpha):
     else:
         tw8836.write(0x4C + (winno-1)*0x10, alpha)
 
-def win_pixel_width_set(winno, bpp):
+def win_bpp_set(winno, bpp):
     tw8836.write_page(0x04)
 
     if (winno == WINNO0):
@@ -317,7 +318,12 @@ def lut_addr_set(addr):
     tw8836.write(0x10, temp | ((addr>>8)<<3))
     tw8836.write(0x11, addr&0xFF)
 
-def lut_load(winno, lut_spi_addr, lut_size, lut_offset):
+def lut_load(winno, mrle_spi_addr, lut_offset):
+    header = header_parse(mrle_spi_addr)
+
+    lut_size        = header[4]
+    lut_spi_addr    = header[5]
+    
     lut_write_enable()
     lut_inc_select(BYTE_INC)
     lut_select(winno)
@@ -325,7 +331,7 @@ def lut_load(winno, lut_spi_addr, lut_size, lut_offset):
     
     spi.spi2lut(lut_spi_addr, lut_offset, lut_size)
     
-def image_display(winno, mrle_spi_addr, x, y):
+def image_display(winno, mrle_spi_addr, x, y, alpha_mode, alpha_level, lut_offset):
     header = header_parse(mrle_spi_addr)
     
     width           = header[0]
@@ -336,21 +342,26 @@ def image_display(winno, mrle_spi_addr, x, y):
     lut_spi_addr    = header[5]
     image_spi_addr  = header[6]
     
-    image_starting_addr_reg_set(winno, image_spi_addr)
-    image_width_height_reg_set(winno, width, height)
-    window_reg_set(winno, x, y, width, height)
+    win_start_addr_set(winno, image_spi_addr)
+    win_width_height_set(winno, width, height)
+    win_pos_size_set(winno, x, y, width, height)
     
-    alpha_blending_mode_set(winno, GLOBAL_MODE)
-    global_alpha_value_set(winno, 0x50)
-    alpha_blending_onoff(winno, define.ON)
+    if (alpha_mode == GLOBAL_ALPHA_MODE):
+        alpha_blending_mode_set(winno, GLOBAL_ALPHA_MODE)
+        global_alpha_value_set(winno, alpha_level)
+        alpha_blending_onoff(winno, define.ON)
+    elif (alpha_mode == PIXEL_ALPHA_MODE):
+        alpha_blending_mode_set(winno, PIXEL_ALPHA_MODE)
+        #pixel_alpha_value_set(winno, alpha_level)
+        alpha_blending_onoff(winno, define.ON)
+    else:
+        alpha_blending_onoff(winno, define.OFF)
     
-    win_pixel_width_set(winno, bpp)
-    lut_offset_set(winno, 0)
+    win_bpp_set(winno, bpp)
+    lut_offset_set(winno, lut_offset)
     rlc_set(winno, bpp, rle)
     
-    lut_load(winno, lut_spi_addr, lut_size, 0)
-    
-    window_onoff(winno, define.ON)
+    win_onoff(winno, define.ON)
 
 def color_fill_onoff(winno, onoff):
     tw8836.write_page(0x04)
@@ -369,7 +380,7 @@ def color_fill_onoff(winno, onoff):
             tw8836.write(0x40 + (winno-1)*0x10, temp & ~(1<<2))
             
 def color_fill_set(winno, x, y, w, h, color):
-    window_reg_set(winno, x, y, w, h)
+    win_pos_size_set(winno, x, y, w, h)
     
     tw8836.write_page(0x04)
     

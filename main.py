@@ -46,17 +46,20 @@ bmposd.onoff_control(define.ON)
 
 #bmposd.devalue_set()
 
-bmposd.image_display(bmposd.WINNO1, 0x100000, 0, 0)
-bmposd.image_display(bmposd.WINNO3, 0x10E080, 0, 0)
+#bmposd.lut_load(bmposd.WINNO1, 0x100000, 0)
+#bmposd.image_display(bmposd.WINNO1, 0x100000, 0, 0, bmposd.NO_ALPHA_MODE, 0, 0)
+
+bmposd.lut_load(bmposd.WINNO3, 0x10E080, 0)
+bmposd.image_display(bmposd.WINNO3, 0x10E080, 0, 0, bmposd.NO_ALPHA_MODE, 50, 0)
 
 bmposd.color_fill_onoff(8, define.ON)
 bmposd.color_fill_set(8, 200, 200, 200, 200, 6)
     
 bmposd.alpha_blending_onoff(8, define.ON)
-bmposd.alpha_blending_mode_set(8, bmposd.GLOBAL_MODE)
+bmposd.alpha_blending_mode_set(8, bmposd.GLOBAL_ALPHA_MODE)
 bmposd.global_alpha_value_set(8, 50)
     
-bmposd.window_onoff(8, define.ON)
+bmposd.win_onoff(8, define.ON)
     
 """
 for i in range(0, 10):
