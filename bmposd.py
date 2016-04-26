@@ -98,6 +98,15 @@ def header_parse(mrle_spi_addr):
     colors = header[LUT_COLORS_IDX] + 1
     rle    = header[RLEDATA_CNT_IDX] & 0xF
     
+    lut_format = header[LUT_FORMAT_IDX]
+    if (lut_format&0x1 == 0):
+        print 'ERROR! please using BGRA format'
+        return
+        
+    if (lut_format&0x20 == 0x20):
+        print 'ERROR! please using LUTS format'
+        return
+    
     if (colors == 256):
         bpp = 8
     elif (colors == 128):
