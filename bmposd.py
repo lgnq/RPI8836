@@ -288,7 +288,7 @@ def lut_inc_select(mode):
     
     temp = tw8836.read(0x10)
     temp = temp & 0x9F
-    tw8836.write(0x10, temp | (mode<<4))
+    tw8836.write(0x10, temp | (mode<<5))
 
 def lut_select(winno):
     tw8836.write_page(0x04)
@@ -311,7 +311,7 @@ def lut_addr_set(addr):
 
 def lut_load(winno, lut_spi_addr, lut_size, lut_offset):
     lut_write_enable()
-    lut_inc_select(ADDR_INC)
+    lut_inc_select(BYTE_INC)
     lut_select(winno)
     lut_addr_set(lut_offset)
     
