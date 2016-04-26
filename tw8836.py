@@ -1040,5 +1040,6 @@ def wait_vblank(n):
     for i in range(n):
         write(0x02, 0xFF)
         while ((read(0x02) & 0x40) == 0x00):
-            print 'wait vblank'
+            if (define.DEBUG == define.ON):
+                print 'wait vblank'
             

@@ -43,6 +43,14 @@ NO_INC      = 0x0
 BYTE_INC    = 0x1
 ADDR_INC    = 0x2
 
+LUT_WEN	     = 0x80
+LUT_INC_ADDR = 0x40
+LUT_INC_COLM = 0x20
+LUT_INC_NO   = 0x00
+LUT_HIGH256  = 0x08
+LUT_BGRP     = 0x04
+LUT_ATTR     = 0x03
+
 def devalue_set():
     tw8836.write_page(0x02)
     
@@ -146,7 +154,7 @@ def win_start_addr_set(winno, image_loc):
         tw8836.write(0x48 + (winno-1)*0x10, image_loc>>12)
         tw8836.write(0x49 + (winno-1)*0x10, image_loc>>4)
         tw8836.write(0x4F + (winno-1)*0x10, image_loc&0x0F)
-
+    
 def win_width_height_set(winno, width, height):
     tw8836.write_page(0x04)
 
@@ -232,6 +240,25 @@ def global_alpha_value_set(winno, alpha):
     else:
         tw8836.write(0x4C + (winno-1)*0x10, alpha)
 
+def pixel_alpha_set(winno, lut_offset, lut_idx, alpha):
+    alpha_blending_mode_set(winno, PIXEL_ALPHA_MODE)
+        
+    lut_offset = lut_offset + lut_idx
+        
+    temp = LUT_WEN | LUT_INC_NO | LUT_ATTR
+        
+    if ((winno == WINNO1) or (winno == WINNO2)):
+        temp |= LUT_BGRP
+    elif (lut_offset>>8):
+        temp |= LUT_HIGH256
+            
+    tw8836.write_page(0x04)
+    tw8836.write(0x10, temp)
+    tw8836.write(0x11, lut_offset&0xFF)
+    tw8836.write(0x12, alpha)
+          
+    alpha_blending_onoff(winno, define.ON)    
+    
 def win_bpp_set(winno, bpp):
     tw8836.write_page(0x04)
 
@@ -330,8 +357,12 @@ def lut_load(winno, mrle_spi_addr, lut_offset):
     lut_addr_set(lut_offset)
     
     spi.spi2lut(lut_spi_addr, lut_offset, lut_size)
-    
-def image_display(winno, mrle_spi_addr, x, y, alpha_mode, alpha_level, lut_offset):
+
+"""
+in GLOBAL_ALPHA_MODE, alpha = alpha level
+in  PIXEL_ALPHA_MODE, alpha = alpha lut index 
+"""    
+def image_display(winno, mrle_spi_addr, x, y, alpha_mode, alpha, lut_offset):
     header = header_parse(mrle_spi_addr)
     
     width           = header[0]
@@ -348,12 +379,10 @@ def image_display(winno, mrle_spi_addr, x, y, alpha_mode, alpha_level, lut_offse
     
     if (alpha_mode == GLOBAL_ALPHA_MODE):
         alpha_blending_mode_set(winno, GLOBAL_ALPHA_MODE)
-        global_alpha_value_set(winno, alpha_level)
+        global_alpha_value_set(winno, alpha)
         alpha_blending_onoff(winno, define.ON)
     elif (alpha_mode == PIXEL_ALPHA_MODE):
-        alpha_blending_mode_set(winno, PIXEL_ALPHA_MODE)
-        #pixel_alpha_value_set(winno, alpha_level)
-        alpha_blending_onoff(winno, define.ON)
+        pixel_alpha_set(winno, lut_offset, alpha, 0x7F)
     else:
         alpha_blending_onoff(winno, define.OFF)
     
