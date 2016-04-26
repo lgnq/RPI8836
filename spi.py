@@ -962,3 +962,84 @@ def program_test():
     crc_check(0x0, 10) 
 
     print 'spi program ok!'
+
+def spi2lut(spi_addr, lut_addr, lut_size):
+    status = status2_read()
+
+    if (status & 0x20):     #in 4B mode    
+        write_enable()
+
+        tw8836.write_page(0x04)
+
+        tw8836.write(0xF3, (DMA_DEST_SOSD_LUT << 6) | DMA_CMD_COUNT_5)
+
+        #write slow read command
+        tw8836.write(0xFA, SPICMD_READ_SLOW)
+
+        #write block addr
+        tw8836.write(0xFB, (spi_addr >> 24))
+        tw8836.write(0xFC, (spi_addr >> 16))
+        tw8836.write(0xFD, (spi_addr >> 8))
+        tw8836.write(0xFE, (spi_addr))    
+
+        #write buffer start address
+        tw8836.write(0xF6, lut_addr>>8)
+        tw8836.write(0xF7, lut_addr&0xFF)
+        
+        #write data length
+        tw8836.write(0xF5, lut_size>>16)
+        tw8836.write(0xF8, lut_size>>8)
+        tw8836.write(0xF9, lut_size&0xFF)
+
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (SPI_CMD_OPT_NONE<<2) | (DMA_WRITE<<1) | DMA_START)
+        """
+        #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
+        while (tw8836.read(0xF4) & 0x01):
+            if (define.DEBUG == define.ON):
+                print 'wait...'
+
+        #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
+
+        #check write enable bit is cleared
+        while (status1_read() & 0x02):
+            if (define.DEBUG == define.ON):
+                print 'wait...' 
+        """
+        print 'spi2lut DMA finished', spi_addr, lut_addr, lut_size
+    else:
+        write_enable()
+
+        tw8836.write_page(0x04)
+
+        tw8836.write(0xF3, (DMA_DEST_SOSD_LUT << 6) | DMA_CMD_COUNT_4)
+
+        #write slow read command
+        tw8836.write(0xFA, SPICMD_READ_SLOW)
+
+        #write block addr
+        tw8836.write(0xFB, (spi_addr >> 16))
+        tw8836.write(0xFC, (spi_addr >> 8))
+        tw8836.write(0xFD, (spi_addr))   
+
+        #write data length
+        tw8836.write(0xF5, 0x0)
+        tw8836.write(0xF8, 0x0)
+        tw8836.write(0xF9, 0x0)
+
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+
+        #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
+        while (tw8836.read(0xF4) & 0x01):
+            if (define.DEBUG == define.ON):
+                print 'wait...'
+
+        #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
+
+        #check write enable bit is cleared
+        while (status1_read() & 0x02):
+            if (define.DEBUG == define.ON):
+                print 'wait...' 
+
+        #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)    
