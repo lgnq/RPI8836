@@ -334,7 +334,7 @@ def write_enable():
     tw8836.write_page(0x04)
     
     tmp = tw8836.read(0xF4)
-    print 'REG0x4F4 is', hex(tmp)
+
     if (tmp & 0x01):
         print 'oops... you need lv_reset!'
 
