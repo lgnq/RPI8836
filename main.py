@@ -44,6 +44,8 @@ tw8836.rb_swap(define.ON)
 fontosd.onoff_control(define.ON)
 bmposd.onoff_control(define.ON)
 
+#bmposd.devalue_set()
+
 bmposd.image_display(bmposd.WINNO1, 0x100000, 0, 0, 800, 480)
 
 bmposd.color_fill_onoff(8, define.ON)
