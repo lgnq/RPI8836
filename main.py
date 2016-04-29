@@ -228,7 +228,9 @@ if __name__ == '__main__':
             
         bmposd.onoff_control(define.ON)        
     elif (sys.argv[1] == 'logo' or sys.argv[1] == 'l'):
-        print 'logo'
+        bmposd.all_win_off()
+        
+        print 'display intersil logo'
         #bmposd.devalue_set()
         
         bmposd.lut_load(bmposd.WINNO1, 0x100000, 0)

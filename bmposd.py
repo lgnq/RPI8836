@@ -91,6 +91,10 @@ def win_onoff(winno, onoff):
         else:
             tw8836.write(0x40 + (winno-1)*0x10, temp & ~0x01)
 
+def all_win_off():
+    for i in range(0, 9):
+        win_onoff(i, define.OFF)
+
 def header_parse(mrle_spi_addr):
     header = []
     spi.read(mrle_spi_addr, header, MRLE_HEADER_SIZE)
