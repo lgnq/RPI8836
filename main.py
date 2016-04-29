@@ -195,6 +195,13 @@ if __name__ == '__main__':
         print 'help, h, ?   - print this help message'
         print 'init, i      - init TW8836'
         print 'logo, l      - show intersil logo'
+        print '================= note ================='
+        print 'please set the I2C speed > 400Kbps'
+        print 'sudo modprobe -r i2c_bcm2708'
+        print 'sudo modprobe i2c-bcm2708 baudrate=1000000'
+        print '========================================'
+        print 'sudo cat /sys/module/i2c_bcm2708/parameters/baudrate'
+        print 'lsmod'
                 
         exit
     elif (sys.argv[1] == 'init' or sys.argv[1] == 'i'):
@@ -250,7 +257,7 @@ if __name__ == '__main__':
         bmposd.all_win_off()
         
         bmposd.lut_load(bmposd.WINNO1, img_spi_addr + img_list[1], 0)
-        bmposd.image_display(bmposd.WINNO1, img_spi_addr + img_list[1], 0, 0, bmposd.NO_ALPHA_MODE, 0x50, 0)
+        bmposd.image_display(bmposd.WINNO1, img_spi_addr + img_list[1], 0, 0, bmposd.PIXEL_ALPHA_MODE, 0x08, 0)
     elif sys.argv[1] == 'animation' or sys.argv[1] == 'a':
         img_spi_addr = 0x600000
         img_list = img
@@ -259,8 +266,9 @@ if __name__ == '__main__':
             
         for i in range(0, 50):
             tw8836.wait_vblank(1)
-            bmposd.all_win_off()
-            bmposd.image_display(bmposd.WINNO1, img_spi_addr + img_list[i], 0, 0, bmposd.NO_ALPHA_MODE, 0x50, 0)        
+            #bmposd.all_win_off()
+            bmposd.win_onoff(1, define.OFF)
+            bmposd.image_display(bmposd.WINNO1, img_spi_addr + img_list[i], 0, 0, bmposd.PIXEL_ALPHA_MODE, 0x08, 0)        
             
             tw8836.wait_vblank(2)
     else:    
