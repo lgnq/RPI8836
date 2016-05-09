@@ -154,7 +154,7 @@ def read_id():
                 size = 64
                 print 'MXIC SPI flash [MX66L51235F] detected, size = 512Mbit[64MB]'
             else:
-                print 'wrong MXIC SPI flash detected'
+                print 'MXIC SPI flash detected, but not support yet.'
     elif (manufacture_id == 0xC8):
         if (device_id_1 == 0x40):
             if (device_id_2 == 0x20):
@@ -170,7 +170,20 @@ def read_id():
                 size = 8
                 print 'GD SPI flash [GD25Q64C] detected'
             else:
-                print 'wrong GD SPI flash detected'
+                print 'GD SPI flash detected, but not support yet.'
+    elif (manufacture_id == 0xEF):
+        if (device_id_1 == 0x40):
+            if (device_id_2 == 0x17):
+                size = 8
+                print 'Winbond SPI flash [25Q64FV] detected'
+            elif (device_id_2 == 0x18):
+                size = 16
+                print 'Winbond SPI flash [25Q128FV] detected'                
+            elif (device_id_2 == 0x19):
+                size = 32
+                print 'Winbond SPI flash [25Q256FV] detected'
+            else:
+                print 'Winbond SPI flash detected, but not support yet.'
     else:
         print 'wrong SPI flash ID detected'               
 
@@ -453,6 +466,25 @@ def quad_enable():
                 print 'todo'
             else:
                 print 'todo'
+    elif (id[0] == 0xEF):   #Winbond
+        status2 = status2_read()
+        if status2 & 0x02:
+            print 'SPI flash is already in QUAD mode'
+        else:
+            write_enable()
+            status2_write(status2 | 0x02)
+            write_disable()
+            print 'SPI flash is in QUAD mode'            
+        
+        if id[1] == 0x40:
+            if id[2] >= 0x19:
+                enter_4b_mode()
+                
+                status3 = status3_read()
+                if (status3 & 0x01):
+                    print 'SPI flash is in 4 Byte mode'
+                else:
+                    print 'SPI flash is not in 4 Byte mode'                
     else:
         print 'todo'            
 
