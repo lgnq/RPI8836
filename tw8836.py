@@ -7,6 +7,11 @@ import smbus
 ADDR = 0x45
 bus = smbus.SMBus(1)
 
+DECODER = 0
+ARGB    = 1
+DTV     = 2
+LVDS    = 3
+
 regs = [
 0xFF, 0x00,  # Page 0
 0x00, 0x36,
@@ -1042,4 +1047,80 @@ def wait_vblank(n):
         while ((read(0x02) & 0x40) == 0x00):
             if (define.DEBUG == define.ON):
                 print 'wait vblank'
-            
+
+def is_video_loss():
+    write_page(0x00)
+
+    val = read(0x04)
+    if val & 0x01:
+        print 'Video is loss'
+        return 1
+    else:
+        print 'Video is ok'
+        return 0
+        
+def inputs_select(input):
+    write_page(0x00)
+    
+    val = read(0x40) & 0xFC
+    
+    if input == DECODER:
+        val |= DECODER
+    elif input == ARGB:
+        val |= ARGB
+    elif input == DTV:
+        val |= DTV
+    elif input == LVDS:
+        val |= LVDS
+        
+    write(0x40, val)    
+        
+def detect_inputs():
+    #DECODER
+    print 'DECODER is detecting'
+    inputs_select(DECODER)
+    
+    #ARGB
+    print 'Analog RGB is detecting'
+    inputs_select(ARGB)
+    
+    if is_video_loss():
+        print 'no ARGB input signal'
+    else:
+        write_page(0x05)
+    
+        vtotal = read(0x22)
+        vtotal = (vtotal << 8) + read(0x23)
+        print 'vtotal is ', vtotal
+        
+    #DTV
+    print 'DTV is detecting'
+    inputs_select(DTV)
+    
+    if is_video_loss():
+        print 'no DTV input signal'    
+    else:
+        write_page(0x05)
+    
+        vtotal = read(0x22)
+        vtotal = (vtotal << 8) + read(0x23)
+        print 'vtotal is ', vtotal
+    
+    #LVDS
+    print 'LVDS is detecting'
+    inputs_select(LVDS)
+
+    if is_video_loss():
+        print 'no LVDS input signal'    
+    else:
+        write_page(0x05)
+    
+        vtotal = read(0x22)
+        vtotal = (vtotal << 8) + read(0x23)
+        print 'vtotal is ', vtotal
+        
+        vfreq = read(0x43)
+        vfreq = read(0x44) + (vfreq<<8)
+        vfreq = read(0x45) + (vfreq<<8)
+        vfreq = 27000000 / vfreq
+        print 'v frequency is ', vfreq
