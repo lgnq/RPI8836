@@ -257,6 +257,7 @@ if __name__ == '__main__':
         bmposd.image_display(bmposd.WINNO1, img_spi_addr, 0, 0, bmposd.NO_ALPHA_MODE, 0x50, 0)
     elif sys.argv[1] == 'detect' or sys.argv[1] == 'd':
         print 'detect the input status'
+        print '======================='
         tw8836.detect_inputs()
     else:    
         #bmposd.devalue_set()

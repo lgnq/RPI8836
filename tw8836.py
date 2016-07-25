@@ -1067,11 +1067,11 @@ def inputs_select(input):
     if input == DECODER:
         val |= DECODER
     elif input == ARGB:
-        val |= ARGB
+        val |= ARGB | 0x10  #always set to “1” for aRGB and LVDS-RX inputs to invert the input clock polarity
     elif input == DTV:
         val |= DTV
     elif input == LVDS:
-        val |= LVDS
+        val |= LVDS | 0x10  #always set to “1” for aRGB and LVDS-RX inputs to invert the input clock polarity
         
     write(0x40, val)    
         
@@ -1079,6 +1079,11 @@ def detect_inputs():
     #DECODER
     print 'DECODER is detecting'
     inputs_select(DECODER)
+
+    if is_video_loss():
+        print 'no CVBS input signal'
+    
+    print '======================='
     
     #ARGB
     print 'Analog RGB is detecting'
@@ -1093,6 +1098,8 @@ def detect_inputs():
         vtotal = (vtotal << 8) + read(0x23)
         print 'vtotal is ', vtotal
         
+    print '======================='
+    
     #DTV
     print 'DTV is detecting'
     inputs_select(DTV)
@@ -1105,6 +1112,8 @@ def detect_inputs():
         vtotal = read(0x22)
         vtotal = (vtotal << 8) + read(0x23)
         print 'vtotal is ', vtotal
+    
+    print '======================='
     
     #LVDS
     print 'LVDS is detecting'
