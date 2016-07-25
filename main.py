@@ -189,12 +189,16 @@ img_norle = [
 ]
 
 if __name__ == '__main__':
+    length = len(sys.argv)	
+	
     if (sys.argv[1] == 'help' or sys.argv[1] == 'h' or sys.argv[1] == '?'):
         print 'this is tw8836 demo using raspberrypi 2'
         print '================= help ================='
         print 'help, h, ?   - print this help message'
         print 'init, i      - init TW8836'
-        print 'show, s      - show image at address 0xXXXXXX'        
+        print 'show, s      - show image at address 0xXXXXXX'
+        print '             - s winno address sx sy alpha level offset'
+        print 'detect, d    - input source detect'
         print '================= note ================='
         print 'please set the I2C speed > 400Kbps'
         print 'sudo modprobe -r i2c_bcm2708'
@@ -248,13 +252,47 @@ if __name__ == '__main__':
             
             tw8836.wait_vblank(2)
     elif sys.argv[1] == 'show' or sys.argv[1] == 's':
-        img_spi_addr = int(sys.argv[2], 16)
-        bmposd.all_win_off()
+        winno = bmposd.WINNO1
+        img_spi_addr = 0x100000
+        sx = 0
+        sy = 0
+        alpha = bmposd.NO_ALPHA_MODE
+        level = 0x000000
+        offset = 0
         
-        print 'show a picture at address', hex(img_spi_addr)
+        if length > 2:
+            winno = int(sys.argv[2], 16)
+            
+        if length > 3:
+            img_spi_addr = int(sys.argv[3], 16)
+            print 'show a picture at address', hex(img_spi_addr)
         
-        bmposd.lut_load(bmposd.WINNO1, img_spi_addr, 0)
-        bmposd.image_display(bmposd.WINNO1, img_spi_addr, 0, 0, bmposd.NO_ALPHA_MODE, 0x50, 0)
+        bmposd.win_onoff(winno, define.OFF)
+        
+        bmposd.lut_load(winno, img_spi_addr, offset)
+        
+        if length > 4:
+            sx = int(sys.argv[4], 16)
+
+        if length > 5:
+            sy = int(sys.argv[5], 16)
+        
+        if length > 6:
+            if sys.argv[6] == 'pixel' or sys.argv[6] == 'p':
+                print 'set pixel alpha blending'
+                alpha = bmposd.PIXEL_ALPHA_MODE
+            elif sys.argv[6] == 'golable' or sys.argv[6] == 'g':
+                print 'set golable alpha blending'
+                alpha = bmposd.GLOBAL_ALPHA_MODE
+        
+        if length > 7:
+            level = int(sys.argv[7], 16)            
+
+        if length > 8:
+            offset = int(sys.argv[8], 16)            
+        
+        tw8836.wait_vblank(1)		
+        bmposd.image_display(winno, img_spi_addr, sx, sy, alpha, level, offset)
     elif sys.argv[1] == 'detect' or sys.argv[1] == 'd':
         print 'detect the input status'
         print '======================='
