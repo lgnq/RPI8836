@@ -3,6 +3,7 @@
 
 import define
 import smbus
+import time
 
 ADDR = 0x45
 bus = smbus.SMBus(1)
@@ -1080,6 +1081,8 @@ def detect_inputs():
     print 'DECODER is detecting'
     inputs_select(DECODER)
 
+    time.sleep(1)
+
     if is_video_loss():
         print 'no CVBS input signal'
     
@@ -1088,6 +1091,8 @@ def detect_inputs():
     #ARGB
     print 'Analog RGB is detecting'
     inputs_select(ARGB)
+	
+    time.sleep(1)
     
     if is_video_loss():
         print 'no ARGB input signal'
@@ -1103,6 +1108,8 @@ def detect_inputs():
     #DTV
     print 'DTV is detecting'
     inputs_select(DTV)
+
+    time.sleep(1)
     
     if is_video_loss():
         print 'no DTV input signal'    
@@ -1119,6 +1126,8 @@ def detect_inputs():
     print 'LVDS is detecting'
     inputs_select(LVDS)
 
+    time.sleep(1)
+	
     if is_video_loss():
         print 'no LVDS input signal'    
     else:
