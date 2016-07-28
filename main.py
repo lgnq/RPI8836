@@ -190,8 +190,8 @@ img_norle = [
 
 if __name__ == '__main__':
     length = len(sys.argv)	
-	
-    if (sys.argv[1] == 'help' or sys.argv[1] == 'h' or sys.argv[1] == '?'):
+    
+    if (length == 1 or sys.argv[1] == 'help' or sys.argv[1] == 'h' or sys.argv[1] == '?'):
         print 'this is tw8836 demo using raspberrypi 2'
         print '================= help ================='
         print 'help, h, ?   - print this help message'
