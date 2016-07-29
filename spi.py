@@ -4,6 +4,10 @@
 import define
 import tw8836
 
+import issi
+import macronix
+import gigadevice
+
 DMA_NO_BUSY_CHECK = 0
 DMA_BUSY_CHECK = 1
 
@@ -32,6 +36,14 @@ SPI_CMD_OPT_BUSY         = 0x04
 SPI_CMD_OPT_WRITE         = 0x02
 SPI_CMD_OPT_WRITE_BUSY     = 0x06
 SPI_CMD_OPT_WRITE_BUSY_AUTO     = 0x16
+
+SPI_READ_SLOW       = 0
+SPI_READ_FAST       = 1
+SPI_READ_DUAL       = 2
+SPI_READ_QUAD       = 3
+SPI_READ_DUAL_IO    = 4
+SPI_READ_QUAD_IO    = 5
+SPI_READ_D_QUAD     = 6
 
 """
 #-----------------------------------------------------------------------------
@@ -102,7 +114,14 @@ SPICMD_READ_QUAD_IO     = 0xEB    #4x I/O read command
 SPICMD_4DTRD            = 0xED    #Quad I/O DT Read
 SPICMD_REMS2            = 0xEF    #read ID for 2x I/O mode
 
-def read_id():
+def detect_spi_flash():
+    global quad_check
+    global quad_enable
+    global quad_disable
+    global four_byte_check
+    global four_byte_enter
+    global four_byte_exit
+    
     tw8836.write_page(0x04)
     
     tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
@@ -137,6 +156,14 @@ def read_id():
     if (manufacture_id == 0x1C):
         print 'xxx SPI flash detected'
     elif (manufacture_id == 0xC2):
+        quad_check      = macronix.quad_check
+        quad_enable     = macronix.quad_enable
+        quad_disable    = macronix.quad_disable
+        
+        four_byte_check = macronix.four_byte_check
+        four_byte_enter = macronix.four_byte_enter
+        four_byte_exit  = macronix.four_byte_exit
+        
         if (device_id_1 == 0x20):
             if (device_id_2 == 0x16):
                 size = 4
@@ -152,10 +179,18 @@ def read_id():
                 print 'MXIC SPI flash [MX25L25635E/F] detected, size = 256Mbit[32MB]'
             elif (device_id_2 == 0x1A):
                 size = 64
-                print 'MXIC SPI flash [MX66L51235F] detected, size = 512Mbit[64MB]'
+                print 'MXIC SPI flash [MX66L51235F] detected, size = 512Mbit[64MB]'           
             else:
                 print 'MXIC SPI flash detected, but not support yet.'
     elif (manufacture_id == 0xC8):
+        quad_check      = gigadevice.quad_check
+        quad_enable     = gigadevice.quad_enable
+        quad_disable    = gigadevice.quad_disable
+        
+        four_byte_check = gigadevice.four_byte_check
+        four_byte_enter = gigadevice.four_byte_enter
+        four_byte_exit  = gigadevice.four_byte_exit
+        
         if (device_id_1 == 0x40):
             if (device_id_2 == 0x20):
                 size = 64
@@ -185,11 +220,14 @@ def read_id():
             else:
                 print 'Winbond SPI flash detected, but not support yet.'
     else:
-        print 'wrong SPI flash ID detected'               
-
+        print 'wrong SPI flash ID detected'
+    
     if (size > 16):
         print 'SPI flash size is', size
         print 'SPI flash size is bigger than 16MB, should be \033[1;40;32mEN4B\033[0m!'
+        
+        while (four_byte_check() == define.FALSE):
+            four_byte_enter()        
         
     return manufacture_id, device_id_1, device_id_2
 
@@ -271,6 +309,32 @@ def status3_read():
 
     return status
 
+def security_register_read():
+    tw8836.write_page(0x04)
+
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
+
+    #read status 1 command
+    tw8836.write(0xFA, SPICMD_RDSCUR)
+
+    tw8836.write(0xF6, 0x04)   #DMA register buffer1 0x4D0
+    tw8836.write(0xF7, 0xD0)   #DMA register buffer1 0x4D0
+
+    #read data length
+    tw8836.write(0xF5, 0x0)
+    tw8836.write(0xF8, 0x0)
+    tw8836.write(0xF9, 0x1)
+
+    #start DMA write (no BUSY check)
+    tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+
+    security_register = tw8836.read(0xD0)
+
+    if (define.DEBUG == define.ON):
+        print 'security register is', hex(security_register)
+
+    return security_register
+    
 def status1_write(status):
     tw8836.write_page(0x04)
 
@@ -379,6 +443,7 @@ def write_disable():
     #start DMA write (no BUSY check)
     tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
+"""
 def enter_4b_mode():
     tw8836.write_page(0x04)
     
@@ -402,9 +467,13 @@ def exit_4b_mode():
     
     tw8836.write(0xFA, SPICMD_EX4B)
     tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
-    
+"""
+
+"""    
 def quad_enable():
-    id = read_id()
+    id = detect_spi_flash()
+    
+    quad_check()
 
     if (id[0] == 0x1C):     #EON
         print 'EON'
@@ -487,6 +556,7 @@ def quad_enable():
                     print 'SPI flash is not in 4 Byte mode'                
     else:
         print 'todo'            
+"""
 
 def dma_spi_to_xram(spi_addr, xram_addr, size):
     status = status2_read()
@@ -942,6 +1012,13 @@ def crc_check(spiaddr, length):
         """
         return 0; 
 
+def spi_read_mode(mode):
+    tw8836.write_page(0x04)
+
+    temp = tw8836.read(0xC0)
+    temp = temp & ~0x03
+    tw8836.write(0xC0, temp | mode)    
+    
 def spi_clk_recover_27mhz_source():
     tw8836.write_page(0x04)
     
@@ -952,16 +1029,26 @@ def spi_clk_recover_27mhz_source():
         print' 27MHz'
         tw8836.write(0xE1, temp & ~0x30)
 
+"""        
     #SPI Read Mode
     temp = tw8836.read(0xC0)
     print 'REG0x4C0 =', hex(temp)    
     if (temp & 0x07):
         print' Slow'
         tw8836.write(0xC0, temp & 0xF8)
+"""
 
 def init():
+    spi_read_mode(SPI_READ_SLOW)
     spi_clk_recover_27mhz_source()
-    quad_enable()
+    
+    detect_spi_flash()
+    
+    #quad_disable()
+    while (quad_check() == define.FALSE):
+        quad_enable()
+    
+    spi_read_mode(SPI_READ_QUAD_IO)
     
 def program_test():
     data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
