@@ -37,14 +37,6 @@ SPI_CMD_OPT_WRITE         = 0x02
 SPI_CMD_OPT_WRITE_BUSY     = 0x06
 SPI_CMD_OPT_WRITE_BUSY_AUTO     = 0x16
 
-SPI_READ_SLOW       = 0
-SPI_READ_FAST       = 1
-SPI_READ_DUAL       = 2
-SPI_READ_QUAD       = 3
-SPI_READ_DUAL_IO    = 4
-SPI_READ_QUAD_IO    = 5
-SPI_READ_D_QUAD     = 6
-
 """
 #-----------------------------------------------------------------------------
 # SPI FLASH Command
@@ -1010,14 +1002,7 @@ def crc_check(spiaddr, length):
             print 'CRC fail.', hex(crc)
             return 2;
         """
-        return 0; 
-
-def spi_read_mode(mode):
-    tw8836.write_page(0x04)
-
-    temp = tw8836.read(0xC0)
-    temp = temp & ~0x03
-    tw8836.write(0xC0, temp | mode)    
+        return 0;     
     
 def spi_clk_recover_27mhz_source():
     tw8836.write_page(0x04)
@@ -1039,7 +1024,7 @@ def spi_clk_recover_27mhz_source():
 """
 
 def init():
-    spi_read_mode(SPI_READ_SLOW)
+    #spi_read_mode(SPI_READ_SLOW)
     spi_clk_recover_27mhz_source()
     
     detect_spi_flash()
@@ -1048,7 +1033,7 @@ def init():
     while (quad_check() == define.FALSE):
         quad_enable()
     
-    spi_read_mode(SPI_READ_QUAD_IO)
+    #spi_read_mode(SPI_READ_QUAD_IO)
     
 def program_test():
     data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]

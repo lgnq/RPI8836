@@ -210,8 +210,14 @@ if __name__ == '__main__':
         exit
     elif (sys.argv[1] == 'init' or sys.argv[1] == 'i'):
         tw8836.detect()
+        
+        while tw8836.SPI_READ_SLOW != tw8836.spi_read_mode_check():
+            tw8836.spi_read_mode(tw8836.SPI_READ_SLOW)
 
         spi.init()
+        
+        while tw8836.SPI_READ_QUAD_IO != tw8836.spi_read_mode_check():
+            tw8836.spi_read_mode(tw8836.SPI_READ_QUAD_IO)
         
         try:
             print 'Enable LVDS RX'

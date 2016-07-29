@@ -13,6 +13,14 @@ ARGB    = 1
 DTV     = 2
 LVDS    = 3
 
+SPI_READ_SLOW       = 0
+SPI_READ_FAST       = 1
+SPI_READ_DUAL       = 2
+SPI_READ_QUAD       = 3
+SPI_READ_DUAL_IO    = 4
+SPI_READ_QUAD_IO    = 5
+SPI_READ_D_QUAD     = 6
+
 regs = [
 0xFF, 0x00,  # Page 0
 0x00, 0x36,
@@ -1142,3 +1150,20 @@ def detect_inputs():
         vfreq = read(0x45) + (vfreq<<8)
         vfreq = 27000000 / vfreq
         print 'v frequency is ', vfreq
+
+def spi_read_mode_check():
+    write_page(0x04)
+
+    mode = read(0xC0) & 0x07
+    print 'spi read mode =', hex(mode)
+    
+    return mode
+    
+def spi_read_mode(mode):
+    write_page(0x04)
+
+    temp = read(0xC0)
+    temp = temp & ~0x07
+ 
+    write(0xC0, temp | mode)
+    
