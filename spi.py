@@ -106,7 +106,7 @@ SPICMD_READ_QUAD_IO     = 0xEB    #4x I/O read command
 SPICMD_4DTRD            = 0xED    #Quad I/O DT Read
 SPICMD_REMS2            = 0xEF    #read ID for 2x I/O mode
 
-def detect_spi_flash():
+def spi_flash_detect():
     global quad_check
     global quad_enable
     global quad_disable
@@ -911,9 +911,9 @@ def spi_clk_recover_27mhz_source():
 def init():
     spi_clk_recover_27mhz_source()
     
-    detect_spi_flash()
+    spi_flash_detect()
     
-    quad_disable()
+    #quad_disable()
     while (quad_check() == define.FALSE):
         quad_enable()
     
@@ -950,9 +950,7 @@ def program_test():
     print 'spi program ok!'
 
 def spi2lut(spi_addr, lut_addr, lut_size):
-    status = status2_read()
-
-    if (status & 0x20):     #in 4B mode    
+    if four_byte_check() == define.TRUE:     #in 4B mode    
         write_enable()
 
         tw8836.write_page(0x04)

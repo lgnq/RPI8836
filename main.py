@@ -266,6 +266,8 @@ if __name__ == '__main__':
         level = 0x000000
         offset = 0
         
+        spi.spi_flash_detect()
+        
         if length > 2:
             winno = int(sys.argv[2], 16)
             
