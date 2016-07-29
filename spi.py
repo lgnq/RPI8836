@@ -435,121 +435,6 @@ def write_disable():
     #start DMA write (no BUSY check)
     tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
-"""
-def enter_4b_mode():
-    tw8836.write_page(0x04)
-    
-    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + DMA_CMD_COUNT_1)    
-    
-    tw8836.write(0xF5, 0)    #length high
-    tw8836.write(0xF8, 0)    #length middle
-    tw8836.write(0xF9, 0)    #length low
-    
-    tw8836.write(0xFA, SPICMD_EN4B)
-    tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
-
-def exit_4b_mode():
-    tw8836.write_page(0x04)
-    
-    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) + DMA_CMD_COUNT_1)
-    
-    tw8836.write(0xF5, 0)    #length high
-    tw8836.write(0xF8, 0)    #length middle
-    tw8836.write(0xF9, 0)    #length low
-    
-    tw8836.write(0xFA, SPICMD_EX4B)
-    tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
-"""
-
-"""    
-def quad_enable():
-    id = detect_spi_flash()
-    
-    quad_check()
-
-    if (id[0] == 0x1C):     #EON
-        print 'EON'
-    elif (id[0] == 0xC2):   #MXIC
-        status = status1_read()
-        if (status & 0x40):
-            print 'SPI flash is already in QUAD mode'
-        else:
-            write_enable()
-            status1_write(status | 0x40)
-            write_disable()
-            print 'SPI flash is in QUAD mode'
-            
-        if (id[1] == 0x20):
-            if (id[2] == 0x19):
-                enter_4b_mode()
-                
-                status = status2_read()
-                if (status & 0x20):
-                    print 'SPI flash is in 4 Byte mode'
-                else:
-                    print 'SPI flash is not in 4 Byte mode'
-    elif (id[0] == 0xC8):   #GD
-        if (id[1] == 0x40):
-            if (id[2] == 0x20):     #GD25Q512MC
-                status = status1_read()
-
-                if (status & 0x40):
-                    print 'SPI flash is already in QUAD mode'
-                else:
-                    write_enable()
-                    status1_write(status | 0x40)
-                    write_disable()
-                    print 'SPI flash is in QUAD mode'
-                    
-                enter_4b_mode()
-                
-                status = status2_read()
-                if (status & 0x20):
-                    print 'SPI flash is in 4 Byte mode'
-                else:
-                    print 'SPI flash is not in 4 Byte mode'
-            elif (id[2] == 0x19):   #GD25Q256C            
-                status = status1_read()
-
-                if (status & 0x40):
-                    print 'SPI flash is already in QUAD mode'
-                    return
-                else:
-                    write_enable()
-                    status1_write(status | 0x40)
-                    write_disable()
-                    print 'SPI flash is in QUAD mode'
-            elif (id[2] == 0x18):
-                print 'todo'
-            elif (id[2] == 0x17):
-                print 'todo'        
-            elif (id[2] == 0x16):
-                print 'todo'
-            else:
-                print 'todo'
-    elif (id[0] == 0xEF):   #Winbond
-        status2 = status2_read()
-        if status2 & 0x02:
-            print 'SPI flash is already in QUAD mode'
-        else:
-            write_enable()
-            status2_write(status2 | 0x02)
-            write_disable()
-            print 'SPI flash is in QUAD mode'            
-        
-        if id[1] == 0x40:
-            if id[2] >= 0x19:
-                enter_4b_mode()
-                
-                status3 = status3_read()
-                if (status3 & 0x01):
-                    print 'SPI flash is in 4 Byte mode'
-                else:
-                    print 'SPI flash is not in 4 Byte mode'                
-    else:
-        print 'todo'            
-"""
-
 def dma_spi_to_xram(spi_addr, xram_addr, size):
     status = status2_read()
 
@@ -1024,16 +909,13 @@ def spi_clk_recover_27mhz_source():
 """
 
 def init():
-    #spi_read_mode(SPI_READ_SLOW)
     spi_clk_recover_27mhz_source()
     
     detect_spi_flash()
     
-    #quad_disable()
+    quad_disable()
     while (quad_check() == define.FALSE):
         quad_enable()
-    
-    #spi_read_mode(SPI_READ_QUAD_IO)
     
 def program_test():
     data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
