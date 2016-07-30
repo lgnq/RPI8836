@@ -356,42 +356,43 @@ if __name__ == '__main__':
                 bmposd.win_start_addr_set(bmposd.WINNO1, img_spi_addr+img_list[n]+16+256*4)
                 bmposd.color_fill_set(bmposd.WINNO2, 200, 200, n, 20, 0)
         
-        #bmposd.lut_load(bmposd.WINNO3, 0x10E080, 0)
-        #bmposd.image_display(bmposd.WINNO3, 0x10E080, 0, 0, bmposd.NO_ALPHA_MODE, 50, 0)
+    while 1:
+        cmd = raw_input("\033[1;40;32mcmd>>\033[0m")
         
-        """
-        bmposd.color_fill_onoff(8, define.ON)
-        bmposd.color_fill_set(8, 200, 200, 200, 200, 6)
-            
-        bmposd.alpha_blending_onoff(8, define.ON)
-        bmposd.alpha_blending_mode_set(8, bmposd.GLOBAL_ALPHA_MODE)
-        bmposd.global_alpha_value_set(8, 50)
-            
-        bmposd.win_onoff(8, define.ON)
-        """
+        if cmd == 'exit' or cmd == 'quit' or cmd == 'q':
+            sys.exit()
+        elif cmd == 'help' or cmd == 'h' or cmd == '?':
+            print 'this is tw8836 demo using raspberrypi 2'
+            print '================= help ================='
+            print 'help, h, ?    - print this help message'
+            print 'init, i       - init TW8836'
+            print 'show, s       - show image at address 0xXXXXXX'
+            print '              - s winno address sx sy alpha level offset'
+            print 'detect, d     - input source detect'
+            print 'exit, quit, q - exit the program'
+            print '================= note ================='
+            print 'please set the I2C speed > 400Kbps'
+            print 'sudo modprobe -r i2c_bcm2708'
+            print 'sudo modprobe i2c-bcm2708 baudrate=1000000'
+            print '========================================'
+            print 'sudo cat /sys/module/i2c_bcm2708/parameters/baudrate'
+            print 'lsmod'
+        elif cmd == 'show' or 's':
+            winno = bmposd.WINNO1
+            img_spi_addr = 0x100000
+            sx = 0
+            sy = 0
+            alpha = bmposd.NO_ALPHA_MODE
+            level = 0x000000
+            offset = 0
         
-        """
-        tw8836.wait_vblank(1)
-            
-        bmposd.lut_load(bmposd.WINNO8, img_spi_addr+img_list[0], 0)
-        bmposd.win_onoff(8, define.ON)
-        bmposd.color_fill_onoff(8, define.ON)
-        for i in range(0, 100):
-            bmposd.color_fill_set(8, 200, 200, i, 20, 0)
-            time.sleep(0.01)
-        """
-            
-        """
-        for i in range(0, 10):
-            bmposd.color_fill_onoff(i, define.ON)
-            bmposd.color_fill_set(i, 20*i+50, 20*i+50, 100, 100, i)
-            
-            bmposd.alpha_blending_onoff(i, define.ON)
-            bmposd.alpha_blending_mode_set(i, bmposd.GLOBAL_MODE)
-            bmposd.global_alpha_value_set(i, 50)
-            
-            bmposd.window_onoff(i, define.ON)
-        """
+            winno = input("winno = ")
+            addr  = input("address = ")
         
-        #tw8836.wait_vblank(1)
-
+            bmposd.win_onoff(winno, define.OFF)
+        
+            bmposd.lut_load(winno, img_spi_addr, offset)     
+        
+            tw8836.wait_vblank(1)		
+            bmposd.image_display(winno, img_spi_addr, sx, sy, alpha, level, offset)
+            
