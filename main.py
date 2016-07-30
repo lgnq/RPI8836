@@ -8,6 +8,7 @@ import fontosd
 import bmposd
 import sx1505
 
+import string
 import time
 import sys
 
@@ -358,6 +359,8 @@ if __name__ == '__main__':
         
     while 1:
         cmd = raw_input("\033[1;40;32mcmd>>\033[0m")
+        cmd = cmd.lower()
+        cmd_list = cmd.split(' ')
         
         if cmd == 'exit' or cmd == 'quit' or cmd == 'q':
             sys.exit()
@@ -377,7 +380,7 @@ if __name__ == '__main__':
             print '========================================'
             print 'sudo cat /sys/module/i2c_bcm2708/parameters/baudrate'
             print 'lsmod'
-        elif cmd == 'show' or 's':
+        elif cmd_list[0] == 'show' or cmd_list[0] == 's':
             winno = bmposd.WINNO1
             img_spi_addr = 0x100000
             sx = 0
@@ -395,4 +398,18 @@ if __name__ == '__main__':
         
             tw8836.wait_vblank(1)		
             bmposd.image_display(winno, img_spi_addr, sx, sy, alpha, level, offset)
+        elif cmd_list[0] == 'w':
+            idx = string.atoi(cmd_list[1], 16)
+            val = string.atoi(cmd_list[2], 16)
+            tw8836.write(idx, val)
+            print 'w', hex(idx), hex(val)
+        elif cmd_list[0] == 'r':
+            idx = string.atoi(cmd_list[1], 16)
+            page = tw8836.read(0xff)
+                
+            if idx == 0xff:
+                print 'PAGE', hex(page)
+            else:
+                print 'PAGE', hex(page), 'IDX', hex(idx), 'is', hex(tw8836.read(idx))
+            
             
