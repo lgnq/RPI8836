@@ -380,6 +380,10 @@ if __name__ == '__main__':
             print '========================================'
             print 'sudo cat /sys/module/i2c_bcm2708/parameters/baudrate'
             print 'lsmod'
+        elif cmd == 'detect' or cmd == 'd':
+            print 'detect the input status'
+            print '======================='
+            tw8836.detect_inputs()            
         elif cmd_list[0] == 'show' or cmd_list[0] == 's':
             winno = bmposd.WINNO1
             img_spi_addr = 0x100000
