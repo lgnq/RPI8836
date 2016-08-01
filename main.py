@@ -429,15 +429,23 @@ if __name__ == '__main__':
             level = 0x000000
             offset = 0
         
-            winno = input("winno = ")
-            addr  = input("address = ")
+            if len(cmd_list) == 1:
+                winno = input("winno = ")
+                addr  = input("address = ")
+            elif len(cmd_list) == 2:
+                winno = string.atoi(cmd_list[1], 16)
+                print 'winno =' + cmd_list[1]
+                addr  = input("address = ")
+            elif len(cmd_list) == 3:
+                winno = string.atoi(cmd_list[1], 16)
+                addr  = string.atoi(cmd_list[2], 16)
         
             bmposd.win_onoff(winno, define.OFF)
         
             bmposd.lut_load(winno, img_spi_addr, offset)     
         
             tw8836.wait_vblank(1)		
-            bmposd.image_display(winno, img_spi_addr, sx, sy, alpha, level, offset)
+            bmposd.image_display(winno, img_spi_addr, sx, sy, alpha, level, offset)        
         elif cmd_list[0] == 'w':
             idx = string.atoi(cmd_list[1], 16)
             val = string.atoi(cmd_list[2], 16)
