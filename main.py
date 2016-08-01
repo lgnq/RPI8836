@@ -380,6 +380,42 @@ if __name__ == '__main__':
             print '========================================'
             print 'sudo cat /sys/module/i2c_bcm2708/parameters/baudrate'
             print 'lsmod'
+        elif cmd == 'init' or cmd == 'i':
+            tw8836.detect()
+        
+            while tw8836.SPI_READ_SLOW != tw8836.spi_read_mode_check():
+                tw8836.spi_read_mode(tw8836.SPI_READ_SLOW)
+
+            spi.init()
+        
+            while tw8836.SPI_READ_QUAD_IO != tw8836.spi_read_mode_check():
+                tw8836.spi_read_mode(tw8836.SPI_READ_QUAD_IO)
+        
+            try:
+                print 'Enable LVDS RX'
+                sx1505.lvds_rx_onoff(define.ON)
+            
+                print 'FPPWC ON'
+                sx1505.fppwc_onoff(define.ON)
+            
+                #print 'FPBIAS ON'
+                #sx1505.fpbias_onoff(define.ON)
+            except IOError:
+                print '\033[1;40;31mNot\033[0m find SX1505 at address 0x20'
+        
+            tw8836.init()
+        
+            tw8836.sspll1_set_freq(72000000)
+            tw8836.sspll2_set_freq(108000000)
+        
+            print 'SSPLL1 frequency is:', tw8836.sspll1_get_freq()
+            print 'SSPLL2 frequency is:', tw8836.sspll2_get_freq()
+        
+            print 'SPI CLK is:', tw8836.spi_clk_get()
+        
+            tw8836.rb_swap(define.ON)
+            
+            bmposd.onoff_control(define.ON)         
         elif cmd == 'detect' or cmd == 'd':
             print 'detect the input status'
             print '======================='
