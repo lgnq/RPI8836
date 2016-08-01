@@ -434,7 +434,7 @@ if __name__ == '__main__':
                 addr  = input("address = ")
             elif len(cmd_list) == 2:
                 winno = string.atoi(cmd_list[1], 16)
-                print 'winno =' + cmd_list[1]
+                print 'winno = ' + cmd_list[1]
                 addr  = input("address = ")
             elif len(cmd_list) == 3:
                 winno = string.atoi(cmd_list[1], 16)
@@ -445,7 +445,20 @@ if __name__ == '__main__':
             bmposd.lut_load(winno, img_spi_addr, offset)     
         
             tw8836.wait_vblank(1)		
-            bmposd.image_display(winno, img_spi_addr, sx, sy, alpha, level, offset)        
+            bmposd.image_display(winno, img_spi_addr, sx, sy, alpha, level, offset)
+        elif cmd_list[0] == 'spi':
+            if len(cmd_list) == 1:
+                print 'spi operation'
+            elif len(cmd_list) == 2:
+                if cmd_list[1] == 'd':
+                    spi.spi_flash_detect()
+                elif cmd_list[1] == 'clk':
+                    print 'spi clk is '
+            else:
+                if cmd_list[1] == 'clk':
+                    clk = string.atoi(cmd_list[2], 10)
+                    
+                print 'set spi clk to ' + cmd_list[2]
         elif cmd_list[0] == 'w':
             idx = string.atoi(cmd_list[1], 16)
             val = string.atoi(cmd_list[2], 16)
