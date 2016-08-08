@@ -475,8 +475,13 @@ if __name__ == '__main__':
                 print 'PAGE', hex(page)
             else:
                 print 'PAGE', hex(page), 'IDX', hex(idx), 'is', hex(tw8836.read(idx))
+        elif cmd_list[0] == ',':
+            val = val - 1
+            tw8836.write(idx, val)
+            print 'w', hex(idx), hex(val)
+        elif cmd_list[0] == '.':
+            val = val + 1
+            tw8836.write(idx, val)
+            print 'w', hex(idx), hex(val)
         else:
             print 'wrong command'
-            
-            
-            
