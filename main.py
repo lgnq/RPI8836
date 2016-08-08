@@ -458,11 +458,10 @@ if __name__ == '__main__':
                 elif cmd_list[1] == 'clk':
                     clk = tw8836.spi_clk_get()
                     print 'spi clk =', clk, 'Hz'
+                else:
+                    print 'wrong spi command'
             else:
-                if cmd_list[1] == 'clk':
-                    clk = string.atoi(cmd_list[2], 10)
-                    
-                print 'set spi clk to ' + cmd_list[2]
+                print 'wrong spi command'
         elif cmd_list[0] == 'w':
             idx = string.atoi(cmd_list[1], 16)
             val = string.atoi(cmd_list[2], 16)
@@ -476,5 +475,8 @@ if __name__ == '__main__':
                 print 'PAGE', hex(page)
             else:
                 print 'PAGE', hex(page), 'IDX', hex(idx), 'is', hex(tw8836.read(idx))
+        else:
+            print 'wrong command'
+            
             
             
