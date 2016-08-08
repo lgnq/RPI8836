@@ -411,7 +411,8 @@ if __name__ == '__main__':
             print 'SSPLL1 frequency is:', tw8836.sspll1_get_freq()
             print 'SSPLL2 frequency is:', tw8836.sspll2_get_freq()
         
-            print 'SPI CLK is:', tw8836.spi_clk_get()
+            clk = tw8836.spi_clk_get()
+            print 'SPI CLK =', clk, 'Hz' 
         
             tw8836.rb_swap(define.ON)
             
@@ -455,7 +456,8 @@ if __name__ == '__main__':
                 if cmd_list[1] == 'd':
                     spi.spi_flash_detect()
                 elif cmd_list[1] == 'clk':
-                    print 'spi clk is '
+                    clk = tw8836.spi_clk_get()
+                    print 'spi clk =', clk, 'Hz'
             else:
                 if cmd_list[1] == 'clk':
                     clk = string.atoi(cmd_list[2], 10)

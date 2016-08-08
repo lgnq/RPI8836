@@ -1001,8 +1001,10 @@ def spi_clk_get():
 
     SPI_CK_SEL = (read(0xE1) >> 4) & 0x3
     if (SPI_CK_SEL == 0x00):
+        print 'SPI CLK is using 27MHz'
         return 27000000
     elif (SPI_CK_SEL == 0x01):
+        print 'SPI CLK is using 32KHz'
         return 32000
     elif (SPI_CK_SEL == 0x02):
         SPI_CK_DIV = read(0xE1) & 0xF
@@ -1028,7 +1030,7 @@ def spi_clk_get():
         elif (SPI_CK_DIV == 0x9):
             div = 16
         elif (SPI_CK_DIV == 0xA):
-            div = 32
+            div = 32   
             
         PLL_SEL = read(0xE0) & 0x1
         
@@ -1038,10 +1040,13 @@ def spi_clk_get():
             SPI_PLL_SEL = (read(0x4B) >> 5) & 0x1
             
             if (SPI_PLL_SEL == 0x0):
+                print 'SPI CLK is using SSPLL1 /', div
                 return sspll1_get_freq() / div
             elif (SPI_PLL_SEL == 0x1):
+                print 'SPI CLK is using SSPLL2 /', div
                 return sspll2_get_freq() / div
         elif (PLL_SEL == 0x1):
+            print 'SPI CLK is using 108MHz /', div
             return 108000000 / div
 
 """
