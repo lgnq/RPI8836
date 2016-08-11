@@ -326,6 +326,59 @@ def security_register_read():
         print 'security register is', hex(security_register)
 
     return security_register
+
+def configuration_register_read():
+    tw8836.write_page(0x04)
+
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
+
+    #read status 1 command
+    tw8836.write(0xFA, SPICMD_RDCR)
+
+    tw8836.write(0xF6, 0x04)   #DMA register buffer1 0x4D0
+    tw8836.write(0xF7, 0xD0)   #DMA register buffer1 0x4D0
+
+    #read data length
+    tw8836.write(0xF5, 0x0)
+    tw8836.write(0xF8, 0x0)
+    tw8836.write(0xF9, 0x1)
+
+    #start DMA write (no BUSY check)
+    tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+
+    configuration_register = tw8836.read(0xD0)
+
+    if (define.DEBUG == define.ON):
+        print 'configuration register is', hex(configuration_register)
+
+    return configuration_register
+
+def configuration_write(configuration):
+    status = status1_read()
+    
+    tw8836.write_page(0x04)
+
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_3)
+
+    #write status 1 command
+    tw8836.write(0xFA, SPICMD_WRSR)
+    tw8836.write(0xFB, status)
+    tw8836.write(0xFC, configuration)
+
+    tw8836.write(0xF6, 0x00)   #DMA register buffer1 0x4D0
+    tw8836.write(0xF7, 0x00)   #DMA register buffer1 0x4D0
+
+    #write data length
+    tw8836.write(0xF5, 0x0)
+    tw8836.write(0xF8, 0x0)
+    tw8836.write(0xF9, 0x0)
+
+    #start DMA write (BUSY check)
+    tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+
+    while (tw8836.read(0xF4) & 0x01):
+        if (define.DEBUG == define.ON):
+            print 'wait...'
     
 def status1_write(status):
     tw8836.write_page(0x04)
