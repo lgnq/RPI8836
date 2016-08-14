@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
+import time
+
 import define
 import tw8836
 
@@ -681,6 +683,11 @@ def sector_erase(sector_addr):
         while (status1_read() & 0x02):
             if (define.DEBUG == define.ON):
                 print 'wait...' 
+                
+        #check write in progress bit is cleared
+        while (status1_read() & 0x01):
+            if (define.DEBUG == define.ON):
+                print 'wait...'                 
 
         #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
     else:
@@ -717,6 +724,11 @@ def sector_erase(sector_addr):
         while (status1_read() & 0x02):
             if (define.DEBUG == define.ON):
                 print 'wait...' 
+                
+        #check write in progress bit is cleared
+        while (status1_read() & 0x01):
+            if (define.DEBUG == define.ON):
+                print 'wait...'                 
 
         #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
 
@@ -753,7 +765,12 @@ def block_erase(block_addr):
         while (status1_read() & 0x02):
             if (define.DEBUG == define.ON):
                 print 'wait...' 
-        
+
+        #check write in progress bit is cleared
+        while (status1_read() & 0x01):
+            if (define.DEBUG == define.ON):
+                print 'wait...' 
+                
         #printf("\r\nblock addr[0x%x] erase finished!\r\n", block_addr)
     else:
         write_enable()
@@ -786,6 +803,11 @@ def block_erase(block_addr):
         while (status1_read() & 0x02):
             if (define.DEBUG == define.ON):
                 print 'wait...' 
+                
+        #check write in progress bit is cleared
+        while (status1_read() & 0x01):
+            if (define.DEBUG == define.ON):
+                print 'wait...'                 
         
         #printf("\r\nblock addr[0x%x] erase finished!\r\n", block_addr)
 
@@ -815,6 +837,11 @@ def chip_erase():
     while (status1_read() & 0x02):
         if (define.DEBUG == define.ON):
             print 'wait...'
+            
+    #check write in progress bit is cleared
+    while (status1_read() & 0x01):
+        if (define.DEBUG == define.ON):
+            print 'wait...'             
 
     print 'chip erase success!'
 
@@ -986,14 +1013,23 @@ def init():
     dummy_cycles_config(1, 1)    
     
 def program_test():
-    data = []
-
-    #chip_erase()
-    #sector_erase(0x0)
-    block_erase(0x0)
+    data = [1, 2, 3 , 4, 5]
 
     data = read(0x0, 10)
 
+    print 'read the data from spi flash at 0x0 before test'
+    for d in data:
+        print hex(d)
+        
+    #chip_erase()
+    #sector_erase(0x0)
+    block_erase(0x0)
+    
+    time.sleep(1)
+
+    data = read(0x0, 10)
+
+    print 'read the data from spi flash at 0x0 after erase operation'
     for d in data:
         print hex(d)
 
