@@ -528,17 +528,12 @@ def dma_spi_to_xram(spi_addr, xram_addr, size, read_mode):
     elif read_mode == tw8836.SPI_READ_QUAD_IO:
         dummy = 3   #TW8836 fixed 6 dummy cycles - (6*4)/8 = 3
         spicmd = SPICMD_READ_QUAD_IO
-     
-    #spicmd = SPICMD_READ_SLOW
-    #dummy = 0
     
     if four_byte_check() == define.TRUE:     #in 4B mode 
         tw8836.write_page(0x04)
     
         tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5 + dummy)
-        #tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5 + dummy)
-        
-        print hex(spicmd)
+
         tw8836.write(0xFA, spicmd)
 
         tw8836.write(0xFB, (spi_addr >> 24))
@@ -889,7 +884,7 @@ def write(addr, data, size):
 def read(addr, size):
     data = []
     
-    dma_spi_to_xram(addr, 0x0, size, tw8836.SPI_READ_QUAD_IO)
+    dma_spi_to_xram(addr, 0x0, size, tw8836.SPI_READ_SLOW)
 
     tw8836.mcu_halt()
 
