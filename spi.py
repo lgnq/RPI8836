@@ -827,7 +827,9 @@ def write(addr, data, size):
     dma_xram_to_spi(0x0, addr, size)
 
 #size is limited to 2048?
-def read(addr, data, size):
+def read(addr, size):
+    data = []
+    
     dma_spi_to_xram(addr, 0x0, size)
 
     tw8836.mcu_halt()
@@ -850,6 +852,8 @@ def read(addr, data, size):
         
     #XMEM access by TW8836
     tw8836.write(0xC2, tw8836.read(0xC2) & ~0x01)
+    
+    return data
 
 #  tw8836_mcu_return()    #eamon 20150522
 
@@ -982,13 +986,13 @@ def init():
     dummy_cycles_config(1, 1)    
     
 def program_test():
-    data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+    data = []
 
     #chip_erase()
     #sector_erase(0x0)
     block_erase(0x0)
 
-    read(0x0, data, 10)
+    data = read(0x0, 10)
 
     for d in data:
         print hex(d)
@@ -998,7 +1002,7 @@ def program_test():
         
     write(0x0, data, 10)
 
-    read(0x0, data, 10)
+    data = read(0x0, 10)
 
     print 'read back from SPI and verify :'
     for i in range(0, 10):

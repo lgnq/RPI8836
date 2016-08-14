@@ -461,6 +461,8 @@ if __name__ == '__main__':
                 elif cmd_list[1] == 'mode':
                     mode = tw8836.spi_read_mode_get()
                     print 'spi read mode is', mode
+                elif cmd_list[1] == 'test':
+                    spi.program_test()
                 else:
                     print 'wrong spi command'
             else:
