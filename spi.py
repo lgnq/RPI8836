@@ -509,13 +509,32 @@ def write_disable():
     #start DMA write (no BUSY check)
     tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
-def dma_spi_to_xram(spi_addr, xram_addr, size):
+def dma_spi_to_xram(spi_addr, xram_addr, size, read_mode):
+    if read_mode == tw8836.SPI_READ_SLOW:
+        dummy = 0
+        spicmd = SPICMD_READ_SLOW
+    elif read_mode == tw8836.SPI_READ_FAST:
+        spicmd = SPICMD_READ_FAST
+    elif read_mode == tw8836.SPI_READ_DUAL:
+        spicmd = SPICMD_READ_DUAL_O
+    elif read_mode == tw8836.SPI_READ_QUAD:
+        spicmd = SPICMD_READ_QUAD_O
+    elif read_mode == tw8836.SPI_READ_DUAL_IO:
+        spicmd = SPICMD_READ_DUAL_IO
+    elif read_mode == tw8836.SPI_READ_QUAD_IO:
+        dummy = 3
+        spicmd = SPICMD_READ_QUAD_IO
+     
+    spicmd = SPICMD_READ_SLOW
+    dummy = 0
+    
     if four_byte_check() == define.TRUE:     #in 4B mode 
         tw8836.write_page(0x04)
     
-        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
-
-        tw8836.write(0xFA, SPICMD_READ_SLOW)
+        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5 + dummy)
+        #tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5 + dummy)
+        
+        tw8836.write(0xFA, spicmd)
 
         tw8836.write(0xFB, (spi_addr >> 24))
         tw8836.write(0xFC, (spi_addr >> 16))
@@ -534,9 +553,9 @@ def dma_spi_to_xram(spi_addr, xram_addr, size):
     else:
         tw8836.write_page(0x04)
     
-        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4)
+        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4 + dummy)
 
-        tw8836.write(0xFA, SPICMD_READ_SLOW)
+        tw8836.write(0xFA, spicmd)
 
         tw8836.write(0xFB, (spi_addr >> 16))
         tw8836.write(0xFC, (spi_addr >> 8))
@@ -857,7 +876,7 @@ def write(addr, data, size):
 def read(addr, size):
     data = []
     
-    dma_spi_to_xram(addr, 0x0, size)
+    dma_spi_to_xram(addr, 0x0, size, tw8836.SPI_READ_QUAD_IO)
 
     tw8836.mcu_halt()
 
