@@ -1156,7 +1156,7 @@ def detect_inputs():
         vfreq = 27000000 / vfreq
         print 'v frequency is ', vfreq
 
-def spi_read_mode_check():
+def spi_read_mode_get():
     write_page(0x04)
 
     mode = read(0xC0) & 0x07
@@ -1164,7 +1164,7 @@ def spi_read_mode_check():
     
     return mode
     
-def spi_read_mode(mode):
+def spi_read_mode_set(mode):
     write_page(0x04)
 
     temp = read(0xC0)

@@ -383,13 +383,13 @@ if __name__ == '__main__':
         elif cmd == 'init' or cmd == 'i':
             tw8836.detect()
         
-            while tw8836.SPI_READ_SLOW != tw8836.spi_read_mode_check():
-                tw8836.spi_read_mode(tw8836.SPI_READ_SLOW)
+            while tw8836.SPI_READ_SLOW != tw8836.spi_read_mode_get():
+                tw8836.spi_read_mode_set(tw8836.SPI_READ_SLOW)
 
             spi.init()
         
-            while tw8836.SPI_READ_QUAD_IO != tw8836.spi_read_mode_check():
-                tw8836.spi_read_mode(tw8836.SPI_READ_QUAD_IO)
+            while tw8836.SPI_READ_QUAD_IO != tw8836.spi_read_mode_get():
+                tw8836.spi_read_mode_set(tw8836.SPI_READ_QUAD_IO)
         
             try:
                 print 'Enable LVDS RX'
@@ -458,6 +458,9 @@ if __name__ == '__main__':
                 elif cmd_list[1] == 'clk':
                     clk = tw8836.spi_clk_get()
                     print 'spi clk =', clk, 'Hz'
+                elif cmd_list[1] == 'mode':
+                    mode = tw8836.spi_read_mode_get()
+                    print 'spi read mode is', mode
                 else:
                     print 'wrong spi command'
             else:

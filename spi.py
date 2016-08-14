@@ -508,9 +508,7 @@ def write_disable():
     tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
 def dma_spi_to_xram(spi_addr, xram_addr, size):
-    status = status2_read()
-
-    if (status & 0x20):        #in 4B mode
+    if four_byte_check() == define.TRUE:     #in 4B mode 
         tw8836.write_page(0x04)
     
         tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
@@ -553,9 +551,7 @@ def dma_spi_to_xram(spi_addr, xram_addr, size):
         tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
 
 def dma_xram_to_spi(xram_addr, spi_addr, size):
-    status = status2_read()
-
-    if (status & 0x20):     #in 4B mode
+    if four_byte_check() == define.TRUE:     #in 4B mode 
         write_enable()
 
         tw8836.write(0xFF, 0x04)
@@ -650,9 +646,7 @@ def xram_write(addr, data, size):
     tw8836.write(0xC2, tw8836.read(0xC2) & ~0x01)
 
 def sector_erase(sector_addr):
-    status = status2_read()
-
-    if (status & 0x20):     #in 4B mode    
+    if four_byte_check() == define.TRUE:     #in 4B mode 
         write_enable()
 
         tw8836.write_page(0x04)
@@ -727,9 +721,7 @@ def sector_erase(sector_addr):
         #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
 
 def block_erase(block_addr):
-    status = status2_read()
-
-    if (status & 0x20):     #in 4B mode      
+    if four_byte_check() == define.TRUE:     #in 4B mode 
         write_enable()
 
         tw8836.write_page(0x04)
@@ -897,9 +889,7 @@ crc_table = [
 ]
 
 def crc_check(spiaddr, length):
-    status = status2_read()
-
-    if (status & 0x20):     #in 4B mode      
+    if four_byte_check() == define.TRUE:     #in 4B mode 
         tw8836.write_page(0x04)
         
         tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | (DMA_ACCESS_MODE_FIX << 4) | DMA_CMD_COUNT_5)
