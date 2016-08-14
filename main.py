@@ -465,6 +465,9 @@ if __name__ == '__main__':
                     spi.program_test()
                 else:
                     print 'wrong spi command'
+                    print 'spi d'
+                    print 'spi clk'
+                    print 'spi tset'
             else:
                 print 'wrong spi command'
         elif cmd_list[0] == 'w':
