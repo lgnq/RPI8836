@@ -27,16 +27,6 @@ def quad_disable():
     spi.write_enable()
     spi.status1_write(status & ~0x40)
     spi.write_disable()
-    
-def four_byte_check():
-    configuration_register = spi.configuration_register_read()
-    
-    if (configuration_register & 0x20):
-        print 'SPI flash is in 4 Byte mode'
-        return define.TRUE
-    else:
-        print 'SPI flash is not in 4 Byte mode'
-        return define.FALSE
 
 def four_byte_enter():
     tw8836.write_page(0x04)
@@ -61,6 +51,31 @@ def four_byte_exit():
     
     tw8836.write(0xFA, spi.SPICMD_EX4B)
     tw8836.write(0xF4, spi.SPI_CMD_OPT_NONE | spi.DMA_START)
+    
+def four_byte_check_35E():
+    security_register = spi.security_register_read()
+    
+    if (security_register & 0x04):
+        print 'SPI flash is in 4 Byte mode'
+        return define.TRUE
+    else:
+        print 'SPI flash is not in 4 Byte mode'
+        return define.FALSE
 
+def four_byte_check_35F():
+    configuration_register = spi.configuration_register_read()
+    
+    if (configuration_register & 0x20):
+        print 'SPI flash is in 4 Byte mode'
+        return define.TRUE
+    else:
+        print 'SPI flash is not in 4 Byte mode'
+        return define.FALSE
+        
 def dummy_cycles_config(mode, cycles):
+    print 'dummy_cycles_config in macronix.py'
+    
+    configuration_register = spi.configuration_register_read()
+    print hex(configuration_register)
+    
     

@@ -89,6 +89,7 @@ SPICMD_HPM              = 0xA3    #high performance enable mode
 SPICMD_RDP              = 0xAB    #Release from deep power down
 SPICMD_RES              = 0xAB    #read electronic ID
 SPICMD_CP               = 0xAD    #continusly program mode
+SPICMD_QPIID            = 0xAF    #QPI ID read
 SPICMD_WDNVREG          = 0xB1    #write non-volatile register(micron)
 SPICMD_ENSO             = 0xB1    #enter secured OTP
 SPICMD_RDNVREG          = 0xB5    #read non-volatile register(micron)
@@ -105,7 +106,7 @@ SPICMD_EX4B             = 0xE9    #exit 4Byte mode
 SPICMD_READ_QUAD_IO     = 0xEB    #4x I/O read command
 SPICMD_4DTRD            = 0xED    #Quad I/O DT Read
 SPICMD_REMS2            = 0xEF    #read ID for 2x I/O mode
-
+    
 def spi_flash_detect():
     global quad_check
     global quad_enable
@@ -113,6 +114,9 @@ def spi_flash_detect():
     global four_byte_check
     global four_byte_enter
     global four_byte_exit
+    global dummy_cycles_config
+    
+    size = 0
     
     tw8836.write_page(0x04)
     
@@ -152,9 +156,9 @@ def spi_flash_detect():
         quad_enable     = macronix.quad_enable
         quad_disable    = macronix.quad_disable
         
-        four_byte_check = macronix.four_byte_check
         four_byte_enter = macronix.four_byte_enter
         four_byte_exit  = macronix.four_byte_exit
+        dummy_cycles_config = macronix.dummy_cycles_config
         
         if (device_id_1 == 0x20):
             if (device_id_2 == 0x16):
@@ -168,7 +172,22 @@ def spi_flash_detect():
                 print 'MXIC SPI flash [MX25L12835E/F] detected, size = 128Mbit[16MB]'        
             elif (device_id_2 == 0x19):
                 size = 32
-                print 'MXIC SPI flash [MX25L25635E/F] detected, size = 256Mbit[32MB]'
+                
+                four_byte_exit()
+                security_register1 = security_register_read()
+                configuration_register1 = configuration_register_read()
+                
+                four_byte_enter()
+                security_register2 = security_register_read()
+                configuration_register2 = configuration_register_read()
+                
+                if ((security_register1 & 0x04) == 0) and ((security_register2 & 0x04) == 0x04) and (configuration_register1 == configuration_register2):
+                    print 'MXIC SPI flash [MX25L25635E] detected, size = 256Mbit[32MB]'
+                    four_byte_check = macronix.four_byte_check_35E
+                    
+                if ((configuration_register1 & 0x20) == 0) and ((configuration_register2 & 0x20) == 0x20) and (security_register1 == security_register2):
+                    print 'MXIC SPI flash [MX25L25635F] detected, size = 256Mbit[32MB]'
+                    four_byte_check = macronix.four_byte_check_35F                
             elif (device_id_2 == 0x1A):
                 size = 64
                 print 'MXIC SPI flash [MX66L51235F] detected, size = 512Mbit[64MB]'           
@@ -969,6 +988,8 @@ def init():
     #quad_disable()
     while (quad_check() == define.FALSE):
         quad_enable()
+        
+    dummy_cycles_config(1, 1)    
     
 def program_test():
     data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
