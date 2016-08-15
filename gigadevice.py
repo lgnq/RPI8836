@@ -61,4 +61,9 @@ def four_byte_exit():
     
     tw8836.write(0xFA, spi.SPICMD_EX4B)
     tw8836.write(0xF4, spi.SPI_CMD_OPT_NONE | spi.DMA_START)
+
+def dummy_cycles_config(mode, cycles):
+    print 'dummy_cycles_config in gigadevice.py'
     
+    #configuration_register = spi.configuration_register_read()
+    #print hex(configuration_register)    

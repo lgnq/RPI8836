@@ -204,6 +204,8 @@ def spi_flash_detect():
         four_byte_enter = gigadevice.four_byte_enter
         four_byte_exit  = gigadevice.four_byte_exit
         
+        dummy_cycles_config = gigadevice.dummy_cycles_config        
+        
         if (device_id_1 == 0x40):
             if (device_id_2 == 0x20):
                 size = 64
