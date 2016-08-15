@@ -65,5 +65,5 @@ def four_byte_exit():
 def dummy_cycles_config(mode, cycles):
     print 'dummy_cycles_config in gigadevice.py'
     
-    #configuration_register = spi.configuration_register_read()
-    #print hex(configuration_register)    
+    status2_register = spi.status2_read()
+    print hex(status2_register)    
