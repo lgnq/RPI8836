@@ -886,7 +886,7 @@ def write(addr, data, size):
 def read(addr, size):
     data = []
     
-    dma_spi_to_xram(addr, 0x0, size, tw8836.SPI_READ_SLOW)
+    dma_spi_to_xram(addr, 0x0, size, tw8836.SPI_READ_QUAD)
 
     tw8836.mcu_halt()
 
