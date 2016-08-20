@@ -883,11 +883,11 @@ def write(addr, data, size):
     dma_xram_to_spi(0x0, addr, size)
 
 #size is limited to 2048?
-def read(addr, size):
+def read(addr, size, mode):
     data = []
     
-    tw8836.spi_read_mode_set(tw8836.SPI_READ_QUAD)
-    dma_spi_to_xram(addr, 0x0, size, tw8836.SPI_READ_QUAD)
+    tw8836.spi_read_mode_set(mode)
+    dma_spi_to_xram(addr, 0x0, size, mode)
 
     tw8836.mcu_halt()
 
@@ -1045,7 +1045,7 @@ def init():
 def program_test():
     data = [1, 2, 3 , 4, 5]
 
-    data = read(0x0, 10)
+    data = read(0x0, 10, tw8836.SPI_READ_QUAD)
 
     print 'read the data from spi flash at 0x0 before test'
     for d in data:
@@ -1057,7 +1057,7 @@ def program_test():
     
     time.sleep(1)
 
-    data = read(0x0, 10)
+    data = read(0x0, 10, tw8836.SPI_READ_QUAD)
 
     print 'read the data from spi flash at 0x0 after erase operation'
     for d in data:
@@ -1068,7 +1068,7 @@ def program_test():
         
     write(0x0, data, 10)
 
-    data = read(0x0, 10)
+    data = read(0x0, 10, tw8836.SPI_READ_QUAD)
 
     print 'read back from SPI and verify :'
     for i in range(0, 10):

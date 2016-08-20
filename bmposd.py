@@ -97,7 +97,7 @@ def all_win_off():
 
 def header_parse(mrle_spi_addr):
     header = []
-    header = spi.read(mrle_spi_addr, MRLE_HEADER_SIZE)
+    header = spi.read(mrle_spi_addr, MRLE_HEADER_SIZE, tw8836.SPI_READ_QUAD)
     
     if (define.DEBUG == define.ON):
         print header
