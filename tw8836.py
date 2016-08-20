@@ -1162,6 +1162,19 @@ def spi_read_mode_get():
     mode = read(0xC0) & 0x07
     print 'spi read mode =', hex(mode)
     
+    if mode == 0:
+        print 'SPI flash read mode is SLOW, please set the dummy cycles = 0'
+    elif mode == 1:
+        print 'SPI flash read mode is FAST, please set the dummy cycles = 1'
+    elif mode == 2:
+        print 'SPI flash read mode is DUAL(1-1-2), please set the dummy cycles = 1'
+    elif mode == 3:
+        print 'SPI flash read mode is QUAD(1-1-4), please set the dummy cycles = 1'
+    elif mode == 4:
+        print 'SPI flash read mode is DUAL IO(1-2-2), please set the dummy cycles = 1'
+    elif mode == 5:
+        print 'SPI flash read mode is QUAD IO(1-4-4), please set the dummy cycles = 3'
+        
     return mode
     
 def spi_read_mode_set(mode):
