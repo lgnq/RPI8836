@@ -534,50 +534,50 @@ def dma_spi_to_xram(spi_addr, xram_addr, size, read_mode):
     if four_byte_check() == define.TRUE:     #in 4B mode 
         tw8836.write_page(0x04)
     
-        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5 + dummy)
+        tw8836.write(0xC3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5 + dummy)
 
-        tw8836.write(0xFA, spicmd)
+        tw8836.write(0xCA, spicmd)
 
-        tw8836.write(0xFB, (spi_addr >> 24))
-        tw8836.write(0xFC, (spi_addr >> 16))
-        tw8836.write(0xFD, (spi_addr >> 8))
-        tw8836.write(0xFE, (spi_addr))
+        tw8836.write(0xCB, (spi_addr >> 24))
+        tw8836.write(0xCC, (spi_addr >> 16))
+        tw8836.write(0xCD, (spi_addr >> 8))
+        tw8836.write(0xCE, (spi_addr))
     
-        tw8836.write(0xF6, (xram_addr >> 8))        # xram address high
-        tw8836.write(0xF7, (xram_addr))             # xram address low
+        tw8836.write(0xC6, (xram_addr >> 8))        # xram address high
+        tw8836.write(0xC7, (xram_addr))             # xram address low
 
-        tw8836.write(0xF5, (size >> 16))            # data Buff count high
-        tw8836.write(0xF8, (size >> 8))             # data Buff count middle
-        tw8836.write(0xF9, (size))                  # data Buff count Low
+        tw8836.write(0xC5, (size >> 16))            # data Buff count high
+        tw8836.write(0xC8, (size >> 8))             # data Buff count middle
+        tw8836.write(0xC9, (size))                  # data Buff count Low
 
         #start DMA read (no BUSY check)
-        tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+        tw8836.write(0xC4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
         
-        while (tw8836.read(0xF4) & 0x01):
+        while (tw8836.read(0xC4) & 0x01):
             if (define.DEBUG == define.ON):
                 print 'wait...' 
     else:
         tw8836.write_page(0x04)
     
-        tw8836.write(0xF3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4 + dummy)
+        tw8836.write(0xC3, (DMA_DEST_MCU_XMEM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4 + dummy)
 
-        tw8836.write(0xFA, spicmd)
+        tw8836.write(0xCA, spicmd)
 
-        tw8836.write(0xFB, (spi_addr >> 16))
-        tw8836.write(0xFC, (spi_addr >> 8))
-        tw8836.write(0xFD, (spi_addr))
+        tw8836.write(0xCB, (spi_addr >> 16))
+        tw8836.write(0xCC, (spi_addr >> 8))
+        tw8836.write(0xCD, (spi_addr))
     
-        tw8836.write(0xF6, (xram_addr >> 8))        # xram address high
-        tw8836.write(0xF7, (xram_addr))             # xram address low
+        tw8836.write(0xC6, (xram_addr >> 8))        # xram address high
+        tw8836.write(0xC7, (xram_addr))             # xram address low
 
-        tw8836.write(0xF5, (size >> 16))            # data Buff count high
-        tw8836.write(0xF8, (size >> 8))             # data Buff count middle
-        tw8836.write(0xF9, (size))                  # data Buff count Low
+        tw8836.write(0xC5, (size >> 16))            # data Buff count high
+        tw8836.write(0xC8, (size >> 8))             # data Buff count middle
+        tw8836.write(0xC9, (size))                  # data Buff count Low
 
         #start DMA read (no BUSY check)
-        tw8836.write(0xF4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
+        tw8836.write(0xC4, (DMA_NO_BUSY_CHECK<<2) | (DMA_READ<<1) | DMA_START)
         
-        while (tw8836.read(0xF4) & 0x01):
+        while (tw8836.read(0xC4) & 0x01):
             if (define.DEBUG == define.ON):
                 print 'wait...'        
 
