@@ -1165,7 +1165,7 @@ def spi_read_mode_get():
     if mode == 0:
         print 'SPI flash read mode is SLOW, please set the dummy cycles = 0'
     elif mode == 1:
-        print 'SPI flash read mode is FAST, please set the dummy cycles = 1'
+        print 'SPI flash read mode is FAST(1-1-1), please set the dummy cycles = 1'
     elif mode == 2:
         print 'SPI flash read mode is DUAL(1-1-2), please set the dummy cycles = 1'
     elif mode == 3:
