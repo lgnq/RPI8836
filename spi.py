@@ -1044,8 +1044,9 @@ def init():
     
 def program_test():
     data = [1, 2, 3 , 4, 5]
+    size = 200
 
-    data = read(0x0, 10, tw8836.SPI_READ_QUAD)
+    data = read(0x0, size, tw8836.SPI_READ_QUAD)
 
     print 'read the data from spi flash at 0x0 before test'
     for d in data:
@@ -1057,21 +1058,21 @@ def program_test():
     
     time.sleep(1)
 
-    data = read(0x0, 10, tw8836.SPI_READ_QUAD)
+    data = read(0x0, size, tw8836.SPI_READ_QUAD)
 
     print 'read the data from spi flash at 0x0 after erase operation'
     for d in data:
         print hex(d)
 
-    for i in range(0, 10):
+    for i in range(0, size):
         data[i] = i+2
         
-    write(0x0, data, 10)
+    write(0x0, data, size)
 
-    data = read(0x0, 10, tw8836.SPI_READ_QUAD)
+    data = read(0x0, size, tw8836.SPI_READ_QUAD)
 
     print 'read back from SPI and verify :'
-    for i in range(0, 10):
+    for i in range(0, size):
         print hex(data[i])
 
         if (data[i] != i+2):
@@ -1079,7 +1080,7 @@ def program_test():
             
             return
 
-    crc_check(0x0, 10) 
+    crc_check(0x0, size) 
 
     print 'spi program ok!'
 
