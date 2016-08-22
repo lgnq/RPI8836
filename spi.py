@@ -245,7 +245,19 @@ def spi_flash_detect():
         
         dummy_cycles_config = issi.dummy_cycles_config
         
-        if device_id_1 == 0x60:
+        if device_id_1 == 0x40:
+            if device_id_2 == 0x16:
+                size = 4
+                print 'ISSI SPI flash [IS25LQ032B] detected'
+            elif device_id_2 == 0x15:
+                size = 2
+                print 'ISSI SPI flash [IS25LQ016B] detected'
+            elif device_id_2 == 0x14:
+                size = 1
+                print 'ISSI SPI flash [IS25LQ080B] detected'
+            else:
+                print 'ISSI SPI flash detected, but not support yet'
+        elif device_id_1 == 0x60:
             if device_id_2 == 0x19:
                 size = 32
                 print 'ISSI SPI flash [IS25LP256D] detected'
@@ -253,7 +265,7 @@ def spi_flash_detect():
                 size = 16
                 print 'ISSI SPI flash [IS25LP128D] detected'
             else:
-                print 'GD SPI flash detected, but not support yet.'
+                print 'ISSI SPI flash detected, but not support yet.'
         elif device_id_1 == 0x70:
             if device_id_2 == 0x19:
                 size = 32
