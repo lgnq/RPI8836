@@ -7,6 +7,7 @@ import spi
 
 def quad_check():
     status = spi.status1_read()
+    
     if (status & 0x40):
         print 'SPI flash is already in QUAD mode'
         return define.TRUE
@@ -61,4 +62,10 @@ def four_byte_exit():
     
     tw8836.write(0xFA, spi.SPICMD_EX4B)
     tw8836.write(0xF4, spi.SPI_CMD_OPT_NONE | spi.DMA_START)
+    
+def dummy_cycles_config(mode, cycles):
+    print 'dummy_cycles_config in issi.py'
+    
+    status2_register = spi.status2_read()
+    print hex(status2_register)        
     

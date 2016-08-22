@@ -234,6 +234,35 @@ def spi_flash_detect():
                 print 'Winbond SPI flash [25Q256FV] detected'
             else:
                 print 'Winbond SPI flash detected, but not support yet.'
+    elif (manufacture_id == 0x9D):
+        quad_check      = issi.quad_check
+        quad_enable     = issi.quad_enable
+        quad_disable    = issi.quad_disable
+        
+        four_byte_check = issi.four_byte_check        
+        four_byte_enter = issi.four_byte_enter
+        four_byte_exit  = issi.four_byte_exit
+        
+        dummy_cycles_config = issi.dummy_cycles_config
+        
+        if device_id_1 == 0x60:
+            if device_id_2 == 0x19:
+                size = 32
+                print 'ISSI SPI flash [IS25LP256D] detected'
+            elif device_id_2 == 0x18:
+                size = 16
+                print 'ISSI SPI flash [IS25LP128D] detected'
+            else:
+                print 'GD SPI flash detected, but not support yet.'
+        elif device_id_1 == 0x70:
+            if device_id_2 == 0x19:
+                size = 32
+                print 'ISSI SPI flash [IS25WP256D] detected'                
+            elif device_id_2 == 0x18:
+                size = 16
+                print 'ISSI SPI flash [IS25WP128D] detected'
+            else:
+                print 'ISSI SPI flash detected, but not support yet.'
     else:
         print 'wrong SPI flash ID detected'
     
@@ -423,8 +452,8 @@ def status1_write(status):
     #start DMA write (BUSY check)
     tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
-    while (tw8836.read(0xF4) & 0x01):
-        if (define.DEBUG == define.ON):
+    while tw8836.read(0xF4) & 0x01:
+        if define.DEBUG == define.ON:
             print 'wait...'
 
 def status2_write(status):
@@ -480,7 +509,7 @@ def write_enable():
     
     tmp = tw8836.read(0xF4)
 
-    if (tmp & 0x01):
+    if tmp & 0x01:
         print 'oops... you need lv_reset!'
 
     tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
