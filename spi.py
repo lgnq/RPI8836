@@ -1085,7 +1085,7 @@ def init():
     
 def program_test():
     data = [1, 2, 3 , 4, 5]
-    size = 200
+    size = 10
 
     data = read(0x0, size, tw8836.SPI_READ_QUAD)
 
