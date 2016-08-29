@@ -1138,8 +1138,9 @@ def init():
 def program_test():
     data = [1, 2, 3 , 4, 5]
     size = 10
+    mode = tw8836.SPI_READ_QUAD_IO
 
-    data = read(0x0, size, tw8836.SPI_READ_QUAD)
+    data = read(0x0, size, mode)
 
     print 'read the data from spi flash at 0x0 before test'
     for d in data:
@@ -1151,7 +1152,7 @@ def program_test():
     
     time.sleep(1)
 
-    data = read(0x0, size, tw8836.SPI_READ_QUAD)
+    data = read(0x0, size, mode)
 
     print 'read the data from spi flash at 0x0 after erase operation'
     for d in data:
@@ -1162,7 +1163,7 @@ def program_test():
         
     write(0x0, data, size)
 
-    data = read(0x0, size, tw8836.SPI_READ_QUAD)
+    data = read(0x0, size, mode)
 
     print 'read back from SPI and verify :'
     for i in range(0, size):
