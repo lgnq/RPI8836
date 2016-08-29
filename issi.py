@@ -33,14 +33,16 @@ def four_byte_check():
     status = spi.status2_read()
     
     if (status & 0x20):
-        print 'SPI flash is in 4 Byte mode'
+        if define.DEBUG == define.ON:
+            print 'SPI flash is in 4 Byte mode'
         spi.bank_address_register_write(0x80)
-        print 'bank address register is', hex(spi.bank_address_register_read())
+        
         return define.TRUE
     else:
-        print 'SPI flash is not in 4 Byte mode'
+        if define.DEBUG == define.ON:
+            print 'SPI flash is not in 4 Byte mode'
         spi.bank_address_register_write(0x0)
-        print 'bank address register is', hex(spi.bank_address_register_read())
+        
         return define.FALSE
 
 def four_byte_enter():

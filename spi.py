@@ -1137,44 +1137,48 @@ def init():
     
 def program_test():
     data = [1, 2, 3 , 4, 5]
-    size = 10
+    addr = 0
+    size = 256
     mode = tw8836.SPI_READ_QUAD_IO
 
-    data = read(0x0, size, mode)
+    data = read(addr, size, mode)
 
     print 'read the data from spi flash at 0x0 before test'
     for d in data:
         print hex(d)
-        
+    
     #chip_erase()
-    #sector_erase(0x0)
-    block_erase(0x0)
+    sector_erase(addr)
+    #block_erase(addr)
     
     time.sleep(1)
 
-    data = read(0x0, size, mode)
-
+    """
+    data = read(addr, size, mode)
+    
     print 'read the data from spi flash at 0x0 after erase operation'
     for d in data:
         print hex(d)
-
+    """
+    
     for i in range(0, size):
-        data[i] = i+2
+        data[i] = size - i - 1
         
-    write(0x0, data, size)
+    write(addr, data, size)
+    
+    #time.sleep(5)
+    
+    data = read(addr, size, mode)
 
-    data = read(0x0, size, mode)
-
-    print 'read back from SPI and verify :'
+    #print 'read back from SPI and verify :'
     for i in range(0, size):
-        print hex(data[i])
-
-        if (data[i] != i+2):
+        if data[i] != size - i - 1:
+            print 'i = ', i, ' data = ', hex(data[i]), 'should be ', hex(size - i - 1)
             print 'verify error!'
             
             return
 
-    crc_check(0x0, size) 
+    crc_check(addr, size) 
 
     print 'spi program ok!'
 
