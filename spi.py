@@ -1124,6 +1124,14 @@ def spi_clk_recover_27mhz_source():
         tw8836.write(0xC0, temp & 0xF8)
 """
 
+def spi_read_clk_delay(delay):
+    tw8836.write_page(0x04)
+
+    val = tw8836.read(0xE1) & 0x3F
+    val = val | delay << 6
+    
+    tw8836.write(0xE1, val)
+    
 def init():
     spi_clk_recover_27mhz_source()
     
@@ -1143,9 +1151,15 @@ def program_test():
 
     data = read(addr, size, mode)
 
+    """
     print 'read the data from spi flash at 0x0 before test'
     for d in data:
         print hex(d)
+    """
+
+    print 'SPI read mode is SPI_READ_QUAD_IO'
+        
+    tw8836.sspll1_set_freq(72000000)
     
     #chip_erase()
     sector_erase(addr)
@@ -1161,27 +1175,258 @@ def program_test():
         print hex(d)
     """
     
-    for i in range(0, size):
-        data[i] = size - i - 1
+    while 1:
+        for i in range(0, size):
+            data[i] = size - i - 1
         
-    write(addr, data, size)
+        write(addr, data, size)
     
-    #time.sleep(5)
+        #time.sleep(5)
     
-    data = read(addr, size, mode)
+        data = read(addr, size, mode)
 
-    #print 'read back from SPI and verify :'
-    for i in range(0, size):
-        if data[i] != size - i - 1:
-            print 'i = ', i, ' data = ', hex(data[i]), 'should be ', hex(size - i - 1)
-            print 'verify error!'
+        #print 'read back from SPI and verify :'
+        for i in range(0, size):
+            if data[i] != size - i - 1:
+                print 'i = ', i, ' data = ', hex(data[i]), 'should be ', hex(size - i - 1)
+                print 'verify error!'
             
-            return
+                break
+                
+        addr = addr + size
+        if addr < 1*4*1024:
+            print 'address is ', hex(addr)
+        else:
+            break
 
     crc_check(addr, size) 
 
-    print 'spi program ok!'
+    print 'spi program ok! @ ', tw8836.spi_clk_get()
 
+    tw8836.sspll1_set_freq(108000000)
+    
+    #chip_erase()
+    sector_erase(addr)
+    #block_erase(addr)
+    
+    time.sleep(1)
+
+    """
+    data = read(addr, size, mode)
+    
+    print 'read the data from spi flash at 0x0 after erase operation'
+    for d in data:
+        print hex(d)
+    """
+    
+    while 1:
+        for i in range(0, size):
+            data[i] = size - i - 1
+        
+        write(addr, data, size)
+    
+        #time.sleep(5)
+    
+        data = read(addr, size, mode)
+
+        #print 'read back from SPI and verify :'
+        for i in range(0, size):
+            if data[i] != size - i - 1:
+                print 'i = ', i, ' data = ', hex(data[i]), 'should be ', hex(size - i - 1)
+                print 'verify error!'
+            
+                break
+                
+        addr = addr + size
+        if addr < 2*4*1024:
+            print 'address is ', hex(addr)
+        else:
+            break
+
+    crc_check(addr, size) 
+
+    print 'spi program ok! @ ', tw8836.spi_clk_get()
+
+    tw8836.sspll1_set_freq(120000000)
+    
+    #chip_erase()
+    sector_erase(addr)
+    #block_erase(addr)
+    
+    time.sleep(1)
+
+    """
+    data = read(addr, size, mode)
+    
+    print 'read the data from spi flash at 0x0 after erase operation'
+    for d in data:
+        print hex(d)
+    """
+    
+    while 1:
+        for i in range(0, size):
+            data[i] = size - i - 1
+        
+        write(addr, data, size)
+    
+        #time.sleep(5)
+    
+        data = read(addr, size, mode)
+
+        #print 'read back from SPI and verify :'
+        for i in range(0, size):
+            if data[i] != size - i - 1:
+                print 'i = ', i, ' data = ', hex(data[i]), 'should be ', hex(size - i - 1)
+                print 'verify error!'
+            
+                break
+                
+        addr = addr + size
+        if addr < 3*4*1024:
+            print 'address is ', hex(addr)
+        else:
+            break
+
+    crc_check(addr, size) 
+
+    print 'spi program ok! @ ', tw8836.spi_clk_get()
+
+    print 'SPI read mode is SPI_READ_QUAD'
+    mode = tw8836.SPI_READ_QUAD
+        
+    tw8836.sspll1_set_freq(72000000)
+    
+    #chip_erase()
+    sector_erase(addr)
+    #block_erase(addr)
+    
+    time.sleep(1)
+
+    """
+    data = read(addr, size, mode)
+    
+    print 'read the data from spi flash at 0x0 after erase operation'
+    for d in data:
+        print hex(d)
+    """
+    
+    while 1:
+        for i in range(0, size):
+            data[i] = size - i - 1
+        
+        write(addr, data, size)
+    
+        #time.sleep(5)
+    
+        data = read(addr, size, mode)
+
+        #print 'read back from SPI and verify :'
+        for i in range(0, size):
+            if data[i] != size - i - 1:
+                print 'i = ', i, ' data = ', hex(data[i]), 'should be ', hex(size - i - 1)
+                print 'verify error!'
+            
+                break
+                
+        addr = addr + size
+        if addr < 4*4*1024:
+            print 'address is ', hex(addr)
+        else:
+            break
+
+    crc_check(addr, size) 
+
+    print 'spi program ok! @ ', tw8836.spi_clk_get()
+
+    tw8836.sspll1_set_freq(108000000)
+    
+    #chip_erase()
+    sector_erase(addr)
+    #block_erase(addr)
+    
+    time.sleep(1)
+
+    """
+    data = read(addr, size, mode)
+    
+    print 'read the data from spi flash at 0x0 after erase operation'
+    for d in data:
+        print hex(d)
+    """
+    
+    while 1:
+        for i in range(0, size):
+            data[i] = size - i - 1
+        
+        write(addr, data, size)
+    
+        #time.sleep(5)
+    
+        data = read(addr, size, mode)
+
+        #print 'read back from SPI and verify :'
+        for i in range(0, size):
+            if data[i] != size - i - 1:
+                print 'i = ', i, ' data = ', hex(data[i]), 'should be ', hex(size - i - 1)
+                print 'verify error!'
+            
+                break
+                
+        addr = addr + size
+        if addr < 5*4*1024:
+            print 'address is ', hex(addr)
+        else:
+            break
+
+    crc_check(addr, size) 
+
+    print 'spi program ok! @ ', tw8836.spi_clk_get()
+
+    tw8836.sspll1_set_freq(120000000)
+    spi_read_clk_delay(3)
+    
+    #chip_erase()
+    sector_erase(addr)
+    #block_erase(addr)
+    
+    time.sleep(1)
+
+    """
+    data = read(addr, size, mode)
+    
+    print 'read the data from spi flash at 0x0 after erase operation'
+    for d in data:
+        print hex(d)
+    """
+    
+    while 1:
+        for i in range(0, size):
+            data[i] = size - i - 1
+        
+        write(addr, data, size)
+    
+        #time.sleep(5)
+    
+        data = read(addr, size, mode)
+
+        #print 'read back from SPI and verify :'
+        for i in range(0, size):
+            if data[i] != size - i - 1:
+                print 'i = ', i, ' data = ', hex(data[i]), 'should be ', hex(size - i - 1)
+                print 'verify error!'
+            
+                break
+                
+        addr = addr + size
+        if addr < 6*4*1024:
+            print 'address is ', hex(addr)
+        else:
+            break
+
+    crc_check(addr, size) 
+
+    print 'spi program ok! @ ', tw8836.spi_clk_get()
+    
 def spi2lut(spi_addr, lut_addr, lut_size):
     if four_byte_check() == define.TRUE:     #in 4B mode    
         write_enable()
