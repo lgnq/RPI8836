@@ -568,6 +568,22 @@ def status3_write(status):
         if (define.DEBUG == define.ON):
             print 'wait...'
 
+#clear SR fail flags
+def sr_clear():
+    tw8836.write_page(0x04)
+    
+    tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_1)
+    
+    #write enable command
+    tw8836.write(0xFA, SPICMD_CLSR)
+
+    #write data length    
+    tw8836.write(0xF5, 0)
+    tw8836.write(0xF8, 0)    
+    tw8836.write(0xF9, 0)
+    
+    tw8836.write(0xF4, SPI_CMD_OPT_NONE | DMA_START)
+
 def write_enable():
     tw8836.write_page(0x04)
     
@@ -770,48 +786,57 @@ def xram_write(addr, data, size):
     tw8836.write(0xC2, tw8836.read(0xC2) & ~0x01)
 
 def sector_erase(sector_addr):
-    if four_byte_check() == define.TRUE:     #in 4B mode 
-        write_enable()
+    if four_byte_check() == define.TRUE:     #in 4B mode
+        while 1: 
+            write_enable()
 
-        tw8836.write_page(0x04)
+            if 0 == (status1_read() & 0x02):
+                continue
 
-        tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_5)
+            #sector erase command
+            tw8836.write_page(0x04)
 
-        #write sector erase command
-        tw8836.write(0xFA, SPICMD_SE)
+            tw8836.write(0xF3, (DMA_DEST_CHIPREG << 6) | DMA_CMD_COUNT_5)
 
-        #write block addr
-        tw8836.write(0xFB, (sector_addr >> 24))
-        tw8836.write(0xFC, (sector_addr >> 16))
-        tw8836.write(0xFD, (sector_addr >> 8))
-        tw8836.write(0xFE, (sector_addr))    
+            #write sector erase command
+            tw8836.write(0xFA, SPICMD_SE)
 
-        #write data length
-        tw8836.write(0xF5, 0x0)
-        tw8836.write(0xF8, 0x0)
-        tw8836.write(0xF9, 0x0)
+            #write block addr
+            tw8836.write(0xFB, (sector_addr >> 24))
+            tw8836.write(0xFC, (sector_addr >> 16))
+            tw8836.write(0xFD, (sector_addr >> 8))
+            tw8836.write(0xFE, (sector_addr))    
 
-        #start DMA write (BUSY check)
-        tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
+            #write data length
+            tw8836.write(0xF5, 0x0)
+            tw8836.write(0xF8, 0x0)
+            tw8836.write(0xF9, 0x0)
 
-        #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
-        while (tw8836.read(0xF4) & 0x01):
-            if (define.DEBUG == define.ON):
-                print 'wait...'
+            #start DMA write (BUSY check)
+            tw8836.write(0xF4, (DMA_BUSY_CHECK<<2) | (DMA_WRITE<<1) | DMA_START)
 
-        #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
+            #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
+            while (tw8836.read(0xF4) & 0x01):
+                if (define.DEBUG == define.ON):
+                    print 'wait...'
 
-        #check write enable bit is cleared
-        while (status1_read() & 0x02):
-            if (define.DEBUG == define.ON):
-                print 'wait...' 
-                
-        #check write in progress bit is cleared
-        while (status1_read() & 0x01):
-            if (define.DEBUG == define.ON):
-                print 'wait...'                 
+            #printf("\r\n0xF4 = 0x%x after DMA", tw8836.read(0xF4))
 
-        #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)
+            #check write in progress bit is cleared
+            while (status1_read() & 0x01):
+                if (define.DEBUG == define.ON):
+                    print 'wait...'
+
+            if (security_register_read() & 0x40):
+                print 'sector erase failed!'
+                sr_clear()
+                continue
+            else:
+                if (define.DEBUG == define.ON):
+                    print 'sector erase successful!'
+
+                print 'sector erase successful!'
+                break
     else:
         write_enable()
 
