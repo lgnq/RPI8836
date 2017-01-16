@@ -7,6 +7,7 @@ import define
 import tw8836
 
 import issi
+import winbond
 import macronix
 import gigadevice
 
@@ -224,6 +225,16 @@ def spi_flash_detect():
             else:
                 print 'GD SPI flash detected, but not support yet.'
     elif (manufacture_id == 0xEF):
+        quad_check      = winbond.quad_check
+        quad_enable     = winbond.quad_enable
+        quad_disable    = winbond.quad_disable
+        
+        four_byte_check = winbond.four_byte_check        
+        four_byte_enter = winbond.four_byte_enter
+        four_byte_exit  = winbond.four_byte_exit
+
+        dummy_cycles_config = winbond.dummy_cycles_config         
+
         if (device_id_1 == 0x40):
             if (device_id_2 == 0x17):
                 size = 8
