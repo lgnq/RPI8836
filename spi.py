@@ -846,8 +846,8 @@ def sector_erase(sector_addr):
                 if (define.DEBUG == define.ON):
                     print 'sector erase successful!'
 
-                print 'sector erase successful!'
-                break
+            print 'sector erase successful!'
+            break
     else:
         write_enable()
 
