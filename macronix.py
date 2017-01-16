@@ -71,7 +71,17 @@ def four_byte_check_35F():
     else:
         print 'SPI flash is not in 4 Byte mode'
         return define.FALSE
-        
+
+def erase_fail_check():
+    status = spi.security_register_read()
+    if (status & 0x40):
+        print 'erase failed'
+        spi.sr_clear()
+        return define.TRUE
+    else:
+        print 'erase succeed'
+        return define.FALSE
+
 def dummy_cycles_config(mode, cycles):
     print 'dummy_cycles_config in macronix.py'
     

@@ -119,6 +119,7 @@ def spi_flash_detect():
     global four_byte_check
     global four_byte_enter
     global four_byte_exit
+    global erase_fail_check
     global dummy_cycles_config
     
     size = 0
@@ -163,6 +164,7 @@ def spi_flash_detect():
         
         four_byte_enter = macronix.four_byte_enter
         four_byte_exit  = macronix.four_byte_exit
+        erase_fail_check = macronix.erase_fail_check
         dummy_cycles_config = macronix.dummy_cycles_config
         
         if (device_id_1 == 0x20):
@@ -206,6 +208,7 @@ def spi_flash_detect():
         four_byte_check = gigadevice.four_byte_check
         four_byte_enter = gigadevice.four_byte_enter
         four_byte_exit  = gigadevice.four_byte_exit
+        erase_fail_check = gigadevice.erase_fail_check
         
         dummy_cycles_config = gigadevice.dummy_cycles_config        
         
@@ -232,6 +235,7 @@ def spi_flash_detect():
         four_byte_check = winbond.four_byte_check        
         four_byte_enter = winbond.four_byte_enter
         four_byte_exit  = winbond.four_byte_exit
+        erase_fail_check = winbond.erase_fail_check
 
         dummy_cycles_config = winbond.dummy_cycles_config         
 
@@ -255,6 +259,7 @@ def spi_flash_detect():
         four_byte_check = issi.four_byte_check        
         four_byte_enter = issi.four_byte_enter
         four_byte_exit  = issi.four_byte_exit
+        erase_fail_check = issi.erase_fail_check
         
         dummy_cycles_config = issi.dummy_cycles_config
         
@@ -838,6 +843,10 @@ def sector_erase(sector_addr):
                 if (define.DEBUG == define.ON):
                     print 'wait...'
 
+            if erase_fail_check():
+                continue
+
+            """
             if (security_register_read() & 0x40):
                 print 'sector erase failed!'
                 sr_clear()
@@ -845,7 +854,7 @@ def sector_erase(sector_addr):
             else:
                 if (define.DEBUG == define.ON):
                     print 'sector erase successful!'
-
+            """
             print 'sector erase successful!'
             break
     else:

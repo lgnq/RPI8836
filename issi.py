@@ -68,7 +68,17 @@ def four_byte_exit():
     
     tw8836.write(0xFA, spi.SPICMD_EX4B)
     tw8836.write(0xF4, spi.SPI_CMD_OPT_NONE | spi.DMA_START)
-    
+
+def erase_fail_check():
+    status = spi.security_register_read()
+    if (status & 0x40):
+        print 'erase failed'
+        spi.sr_clear()
+        return define.TRUE
+    else:
+        print 'erase succeed'
+        return define.FALSE
+            
 def dummy_cycles_config(mode, cycles):
     print 'dummy_cycles_config in issi.py'
     
