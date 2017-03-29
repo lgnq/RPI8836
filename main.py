@@ -432,14 +432,14 @@ if __name__ == '__main__':
         
             if len(cmd_list) == 1:
                 winno = input("winno = ")
-                img_spi_addr  = input("address = ")
+                img_spi_addr = input("address = ")
             elif len(cmd_list) == 2:
                 winno = string.atoi(cmd_list[1], 16)
                 print 'winno = ' + cmd_list[1]
-                img_spi_addr  = input("address = ")
+                img_spi_addr = input("address = ")
             elif len(cmd_list) == 3:
                 winno = string.atoi(cmd_list[1], 16)
-                img_spi_addr  = string.atoi(cmd_list[2], 16)
+                img_spi_addr = string.atoi(cmd_list[2], 16)
                 
             print hex(img_spi_addr)
         
