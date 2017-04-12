@@ -181,13 +181,13 @@ def font_download(dest_font_index, dat, unit_size, unit_num):
 
         tw8836.write(0x09, addr&0xFF)
 
-        addr++
+        addr += 1
         w_cnt += 2
 
         for j in range(0, unit_size):
             tw8836.write(0x0A, dat[j])
 
-            w_cnt++
+            w_cnt += 1
             if w_cnt >= 8:
                 time.sleep(0.001)
                 w_cnt = 0
