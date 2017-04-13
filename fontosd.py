@@ -64,7 +64,7 @@ FOSD_COLOR_VALUE_MAGENTA	= 0xF81F	#/*D:Magenta*/
 FOSD_COLOR_VALUE_YELLOW		= 0xFFE0	#/*E:Yellow*/	
 FOSD_COLOR_VALUE_WHITE		= 0xFFFF 	#/*F:White*/		
 
-DEFAULT_LUT[] = 
+DEFAULT_LUT = 
 [
 	FOSD_COLOR_VALUE_BLACK,         #	/*0:Black*/			                      
 	FOSD_COLOR_VALUE_DBLUE,         #	/*1:DarkBlue*/		                   
