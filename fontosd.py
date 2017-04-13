@@ -41,6 +41,49 @@ BASE_ADDR = [
 FONTRAM = 0
 OSDRAM  = 1
 
+FOSD_OSDRAM_WRITE_NORMAL	0
+FOSD_OSDRAM_WRITE_AUTO		1	#Font Data or Attribute Address auto mode
+FOSD_OSDRAM_WRITE_DATA		3	#Font Data Auto Mode
+
+FOSD_MAX_OSDRAM_SIZE	512
+
+FOSD_COLOR_VALUE_BLACK		0x0000	#/*0:Black*/		
+FOSD_COLOR_VALUE_DBLUE		0x0010	#/*1:DarkBlue*/	
+FOSD_COLOR_VALUE_GREEN		0x0400	#/*2:Green*/		
+FOSD_COLOR_VALUE_DCYAN		0x0410	#/*3:DarkCyan*/	
+FOSD_COLOR_VALUE_DRED		0x8000	#/*4:DarkRed*/	
+FOSD_COLOR_VALUE_DMAGENTA	0x8010	#/*5:DarkMagenta*/
+FOSD_COLOR_VALUE_DYELLOW	0x8400	#/*6:DarkYellow*/
+FOSD_COLOR_VALUE_GRAY		0x8410	#/*7:Gray*/		
+FOSD_COLOR_VALUE_SILVER		0xC618	#/*8:Silver*/	
+FOSD_COLOR_VALUE_BLUE		0x001F	#/*9:Blue*/		
+FOSD_COLOR_VALUE_LIME		0x07E0	#/*A:Lime*/		
+FOSD_COLOR_VALUE_CYAN		0x07FF	#/*B:Cyan*/		
+FOSD_COLOR_VALUE_RED		0xF800	#/*V:Red*/		
+FOSD_COLOR_VALUE_MAGENTA	0xF81F	#/*D:Magenta*/	
+FOSD_COLOR_VALUE_YELLOW		0xFFE0	#/*E:Yellow*/	
+FOSD_COLOR_VALUE_WHITE		0xFFFF 	#/*F:White*/		
+
+DEFAULT_LUT[] = 
+[
+	FOSD_COLOR_VALUE_BLACK,         #	/*0:Black*/			                      
+	FOSD_COLOR_VALUE_DBLUE,         #	/*1:DarkBlue*/		                   
+	FOSD_COLOR_VALUE_GREEN,         #	/*2:Green*/			                   
+	FOSD_COLOR_VALUE_DCYAN,         #	/*3:DarkCyan*/		                   
+	FOSD_COLOR_VALUE_DRED,          #	/*4:DarkRed*/		                  
+	FOSD_COLOR_VALUE_DMAGENTA,      #	/*5:DarkMagenta*/	                      
+	FOSD_COLOR_VALUE_DYELLOW,       #	/*6:DarkYellow*/	                     
+	FOSD_COLOR_VALUE_GRAY,          #	/*7:Gray*/			                  
+	FOSD_COLOR_VALUE_SILVER,        #	/*8:Silver*/		                    
+	FOSD_COLOR_VALUE_BLUE,          #	/*9:Blue*/			                  
+	FOSD_COLOR_VALUE_LIME,          #	/*A:Lime*/			                  
+	FOSD_COLOR_VALUE_CYAN,          #	/*B:Cyan*/			                  
+	FOSD_COLOR_VALUE_RED,           #	/*V:Red*/			                 
+	FOSD_COLOR_VALUE_MAGENTA,       #	/*D:Magenta*/		                     
+	FOSD_COLOR_VALUE_YELLOW,        #	/*E:Yellow*/		                    
+	FOSD_COLOR_VALUE_WHITE          #	/*F:White*/			                   
+]
+
 FONTS = [
 [0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x66,0x00,0x00,0x24,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00],
 [0x00,0x00,0x00,0x00,0x60,0x00,0x00,0x06,0x00,0x00,0x60,0x00,0x00,0xF6,0x00,0x00,0xFF,0x00,0x00,0xFF,0x00,0x00,0x06,0x00,0x00,0x00,0x00],
@@ -401,7 +444,6 @@ def font_download(dest_font_index, dat, unit_size, unit_num):
     w_cnt = 0
 
     for i in range(0, unit_num):
-    #for i in range(0, 1):    
         if w_cnt >= 6:
             time.sleep(0.001)
             w_cnt = 0
@@ -419,12 +461,9 @@ def font_download(dest_font_index, dat, unit_size, unit_num):
         w_cnt += 2
         
         a = dat[i]
-        #print a
         
         for j in range(0, unit_size):
             tw8836.write(0x0A, a[j])
-            #b = a[j]
-            #print b
             
             w_cnt += 1
             if w_cnt >= 8:
@@ -432,6 +471,179 @@ def font_download(dest_font_index, dat, unit_size, unit_num):
                 w_cnt = 0
 
     access_mode_set(OSDRAM)
+
+def osdram_set_fifo(onoff, delay):
+	if delay:
+		tw8836.wait_vblank(delay);
+
+	tw8836.write_page(FONTOSD_PAGE)
+ 	val = tw8836.read(0x00)
+
+	if define.ON:
+		tw8836.write(0x00, val & ~0x01);	//turn off bypass, so FIFO will be ON.
+	else:
+		tw8836.write(0x00, val | 0x01);		//turn on bypass, so FIFO will be OFF.
+
+def osdram_addr_set(addr):
+	tw8836.write_page(FONTOSD_PAGE)
+
+	val = tw8836.read(0x05)
+	tw8836.write(0x05, val | (addr>>8))
+	tw8836.write(0x06, addr&0xFF)
+
+"""
+* set OsdRam attribute
+*
+*	r308[7:0]
+*	1BPP: 	r308[7:4] bgColor
+*			r308[3:0] fgColor
+*	MBPP:   r308[3:0] (LUT offset / 4)
+"""
+def osdram_attr_set(attr):
+	tw8836.write_page(FONTOSD_PAGE)
+	tw8836.write(0x08, attr)
+
+def osdram_write_mode_set(mode):
+	tw8836.write_page(FONTOSD_PAGE)
+
+	val = tw8836.read(04) & 0xF3
+	val |= (mode << 2)
+	tw8836.write(0x04, val)
+
+def osdram_addr_attr_set(addr, attr):
+	osdram_write_mode_set(FOSD_OSDRAM_WRITE_NORMAL)
+	
+	osdram_addr_set(addr)
+	osdram_attr_set(attr)
+
+	osdram_write_mode_set(FOSD_OSDRAM_WRITE_DATA)
+	osdram_addr_set(addr)
+
+def osdram_clear_all(dat, attr):
+	osdram_set_fifo(define.ON, 0)
+	osdram_addr_attr_set(0, attr)
+
+	tw8836.write_page(FONTOSD_PAGE)
+	val = tw8836.read(0x04)
+
+	if (dat & 0x100):
+		tw8836.write(0x04, val | 0x20)
+	else:
+		tw8836.write(0x04, val & ~0x20)
+
+	for i in range(0, FOSD_MAX_OSDRAM_SIZE):
+		tw8836.write(0x07, dat)
+
+	osdram_set_fifo(define.ON, 1)
+
+def lut_set(idx, array, size, delay):
+	if delay:
+		tw8836.wait_vblank(delay)
+
+	tw8836.write_page(0x03)
+	val = tw8836.read(0x0C) & 0xC0
+	for i in range(0, size):
+		tw8836.write(0x0C, (idx+i) | val)
+		tw8836.write(0x0D, array[i]>>8)
+		tw8836.write(0x0E, array[i]&0xFF)
+
+def win_alpha_set(winno, lut_index, alpha_level):
+	tw8836.write_page(FONTOSD_PAGE)
+
+	idx = BASE_ADDR[winno] + 0x01
+	tw8836.write(0x92, lut_index)	#select color index
+	tw8836.write(idx, alpha_level)	#set the alpha level
+
+def win_init(winno):
+	tw8836.write_page(FONTOSD_PAGE)
+
+	idx = BASE_ADDR[winno]
+	val = tw8836.read(idx)
+	tw8836.write(idx, (val & 0x7F) | 0x40)
+
+	tw8836.write(idx+0x07, 0x00)
+	tw8836.write(idx+0x08, 0x00)
+	tw8836.write(idx+0x09, 0x00)
+	tw8836.write(idx+0x0A, 0x00)
+	tw8836.write(idx+0x0B, 0x00)
+	tw8836.write(idx+0x0C, 0x00)
+	tw8836.write(idx+0x0D, 0x00)
+	tw8836.write(idx+0x0E, 0x00)
+	tw8836.write(idx+0x0F, 0x00)
+
+	win_alpha_set(winno, 1, 0)
+
+def win_screen_xy(winno, x, y):
+	tw8836.write_page(FONTOSD_PAGE)
+
+	idx = BASE_ADDR[winno]
+	tmp = x>>8
+	tmp <<= 4
+	tmp += y>>8
+	tw8836.write(idx+2, tmp)
+	tw8836.write(idx+3, x)
+	tw8836.write(idx+4, y)
+
+def win_screen_wh(winno, w, h):
+	tw8836.write_page(FONTOSD_PAGE)
+	
+	idx = BASE_ADDR[winno]
+
+	tw8836.write(idx+5, h)
+	tw8836.write(idx+6, w)
+
+def win_zoom(winno, zoom_h, zoom_v):
+	idx = BASE_ADDR[winno]
+
+	val = tw8836.read(idx)
+	tmp = (zoom_h << 2) + zoom_v
+	tmp += val & 0xF0
+	tw8836.write(idx, tmp)
+
+def font_test():
+	devalue_set()
+
+	win_init(0)
+	tw8836.wait_vblank(1)
+	win_onoff(0, define.OFF)
+
+	font_download(0, FONTS, 156, 27)
+	win_alpha_set(0, 1, 4)
+	win_screen_xy(0, 0, 0)
+	win_screen_wh(0, 4, 4)
+	win_zoom(0, 1, 0)
+
+	tw8836.write_page(FONTOSD_PAGE)
+
+	tw8836.write(0x04, 0x0C)
+	osdram_addr_attr_set(0, 0x08)
+
+	for i in range(0, 4):
+		for j in range(0, 4):
+			idx = i*4*j
+			tw8836.write(0x07, idx)
+
+	tw8836.write(0x04, tw8836.read(0x04) & 0xDF)
+	tw8836.write(0x04, tw8836.read(0x04) & 0xFE)
+
+	win_onoff(0, defein.ON)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     
