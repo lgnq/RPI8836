@@ -64,8 +64,7 @@ FOSD_COLOR_VALUE_MAGENTA	= 0xF81F	#/*D:Magenta*/
 FOSD_COLOR_VALUE_YELLOW		= 0xFFE0	#/*E:Yellow*/	
 FOSD_COLOR_VALUE_WHITE		= 0xFFFF 	#/*F:White*/		
 
-DEFAULT_LUT = 
-[
+DEFAULT_LUT = [ 
 	FOSD_COLOR_VALUE_BLACK,         #	/*0:Black*/			                      
 	FOSD_COLOR_VALUE_DBLUE,         #	/*1:DarkBlue*/		                   
 	FOSD_COLOR_VALUE_GREEN,         #	/*2:Green*/			                   
@@ -480,9 +479,9 @@ def osdram_set_fifo(onoff, delay):
  	val = tw8836.read(0x00)
 
 	if define.ON:
-		tw8836.write(0x00, val & ~0x01);	//turn off bypass, so FIFO will be ON.
+		tw8836.write(0x00, val & ~0x01);	#//turn off bypass, so FIFO will be ON.
 	else:
-		tw8836.write(0x00, val | 0x01);		//turn on bypass, so FIFO will be OFF.
+		tw8836.write(0x00, val | 0x01);		#//turn on bypass, so FIFO will be OFF.
 
 def osdram_addr_set(addr):
 	tw8836.write_page(FONTOSD_PAGE)
@@ -607,7 +606,7 @@ def font_test():
 	tw8836.wait_vblank(1)
 	win_onoff(0, define.OFF)
 
-	font_download(0, FONTS, 156, 27)
+	font_download(0, FONTS, 27, 0x80)
 	win_alpha_set(0, 1, 4)
 	win_screen_xy(0, 0, 0)
 	win_screen_wh(0, 4, 4)
@@ -626,7 +625,7 @@ def font_test():
 	tw8836.write(0x04, tw8836.read(0x04) & 0xDF)
 	tw8836.write(0x04, tw8836.read(0x04) & 0xFE)
 
-	win_onoff(0, defein.ON)
+	win_onoff(0, define.ON)
 
 
 
