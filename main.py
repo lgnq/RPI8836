@@ -470,9 +470,10 @@ if __name__ == '__main__':
                     print 'spi tset'
             else:
                 print 'wrong spi command'
-        elif cmd_list[0] == "font":
-            #fontosd.font_download(0, fontosd.FONTS, 27, 0x80)
-            fontosd.font_test()        
+        elif cmd_list[0] == "codefont":
+            fontosd.code_font_test()        
+        elif cmd_list[0] == "spifont":
+            fontosd.spi_font_test()    
         elif cmd_list[0] == 'w':
             idx = string.atoi(cmd_list[1], 16)
             val = string.atoi(cmd_list[2], 16)

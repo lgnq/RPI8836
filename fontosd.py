@@ -7,9 +7,9 @@ import tw8836
 import spi
 
 """
-//----------------
-// Font OSD
-//----------------
+#----------------
+# Font OSD
+#----------------
 """
 REG_FOSD_CHEIGHT		=	0x90
 REG_FOSD_MUL_CON		=	0x91
@@ -482,9 +482,9 @@ def osdram_set_fifo(onoff, delay):
  	val = tw8836.read(0x00)
 
 	if define.ON:
-		tw8836.write(0x00, val & ~0x01);	#//turn off bypass, so FIFO will be ON.
+		tw8836.write(0x00, val & ~0x01);	##turn off bypass, so FIFO will be ON.
 	else:
-		tw8836.write(0x00, val | 0x01);		#//turn on bypass, so FIFO will be OFF.
+		tw8836.write(0x00, val | 0x01);		##turn on bypass, so FIFO will be OFF.
 
 def osdram_addr_set(addr):
 	tw8836.write_page(FONTOSD_PAGE)
@@ -623,7 +623,7 @@ def font_download_from_SPI(dest_loc, src_loc, size):
 	fontram_fifo_set(define.ON)
 	access_mode_set(OSDRAM)
 
-def font_test():
+def code_font_test():
 	devalue_set()
 
 	win_init(0)
@@ -631,7 +631,35 @@ def font_test():
 	win_onoff(0, define.OFF)
 
 	font_width_height_set(12, 18)
-	#font_download(0, FONTS, 27, 229)
+	font_download(0, FONTS, 27, 229)
+	win_alpha_set(0, 1, 4)
+	win_screen_xy(0, 200, 100)
+	win_screen_wh(0, 4, 4)
+	win_zoom(0, 1, 1)
+
+	tw8836.write_page(FONTOSD_PAGE)
+
+	tw8836.write(0x04, 0x0C)
+	osdram_addr_attr_set(0, 0x08)
+
+	for i in range(0, 4):
+		for j in range(0, 4):
+			idx = i * j + ord('a')
+			tw8836.write(0x07, idx)
+
+	tw8836.write(0x04, tw8836.read(0x04) & 0xDF)
+	tw8836.write(0x04, tw8836.read(0x04) & 0xFE)
+
+	win_onoff(0, define.ON)
+
+def spi_font_test():
+	devalue_set()
+
+	win_init(0)
+	tw8836.wait_vblank(1)
+	win_onoff(0, define.OFF)
+
+	font_width_height_set(12, 18)
 	font_download_from_SPI(0x80000, 0, 0x27F9)
 	win_alpha_set(0, 1, 4)
 	win_screen_xy(0, 200, 100)
@@ -646,13 +674,12 @@ def font_test():
 	for i in range(0, 4):
 		for j in range(0, 4):
 			idx = i * j + ord('a')
-	tw8836.write(0x07, idx)
+			tw8836.write(0x07, idx)
 
 	tw8836.write(0x04, tw8836.read(0x04) & 0xDF)
 	tw8836.write(0x04, tw8836.read(0x04) & 0xFE)
 
 	win_onoff(0, define.ON)
-
 
 
 
