@@ -620,7 +620,8 @@ def font_test():
 	for i in range(0, 4):
 		for j in range(0, 4):
 			idx = i*4*j
-			tw8836.write(0x07, ord('x'))
+			#tw8836.write(0x07, ord('x'))
+			tw8836.write(0x07, 10)
 
 	tw8836.write(0x04, tw8836.read(0x04) & 0xDF)
 	tw8836.write(0x04, tw8836.read(0x04) & 0xFE)
