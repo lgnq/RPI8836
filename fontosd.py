@@ -4,6 +4,7 @@
 import time
 import define
 import tw8836
+import spi
 
 """
 //----------------
@@ -616,10 +617,10 @@ def font_download_from_SPI(dest_loc, src_loc, size):
 	fontram_fifo_set(define.OFF)
 	access_mode_set(FONTRAM)
 
-	spi2fontram(dest_loc, src_loc, size)
+	spi.spi2fontram(dest_loc, src_loc, size)
 
 	tw8836.wait_vblank(1)
-	fontram_fifo_set(ON)
+	fontram_fifo_set(define.ON)
 	access_mode_set(OSDRAM)
 
 def font_test():
@@ -629,7 +630,7 @@ def font_test():
 	tw8836.wait_vblank(1)
 	win_onoff(0, define.OFF)
 
-    font_width_height_set(12, 18)
+	font_width_height_set(12, 18)
 	#font_download(0, FONTS, 27, 229)
 	font_download_from_SPI(0x80000, 0, 0x27F9)
 	win_alpha_set(0, 1, 4)
@@ -645,7 +646,7 @@ def font_test():
 	for i in range(0, 4):
 		for j in range(0, 4):
 			idx = i * j + ord('a')
-            tw8836.write(0x07, idx)
+	tw8836.write(0x07, idx)
 
 	tw8836.write(0x04, tw8836.read(0x04) & 0xDF)
 	tw8836.write(0x04, tw8836.read(0x04) & 0xFE)
