@@ -608,7 +608,7 @@ def font_test():
 	tw8836.wait_vblank(1)
 	win_onoff(0, define.OFF)
 
-        font_width_height_set(12, 18)
+    font_width_height_set(12, 18)
 	font_download(0, FONTS, 27, 229)
 	win_alpha_set(0, 1, 4)
 	win_screen_xy(0, 200, 100)
@@ -622,10 +622,8 @@ def font_test():
 
 	for i in range(0, 4):
 		for j in range(0, 4):
-			idx = i*j+ord('a')
-			#tw8836.write(0x07, ord('x'))
-			#tw8836.write(0x07, 50)
-                        tw8836.write(0x07, idx)
+			idx = i * j + ord('a')
+            tw8836.write(0x07, idx)
 
 	tw8836.write(0x04, tw8836.read(0x04) & 0xDF)
 	tw8836.write(0x04, tw8836.read(0x04) & 0xFE)
