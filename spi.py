@@ -1529,14 +1529,52 @@ def spi2lut(spi_addr, lut_addr, lut_size):
         tw8836.write(0xFC, (spi_addr >> 8))
         tw8836.write(0xFD, (spi_addr))   
 
+        #write buffer start address
+        tw8836.write(0xF6, lut_addr>>8)
+        tw8836.write(0xF7, lut_addr&0xFF)
+        
         #write data length
-        tw8836.write(0xF5, 0x0)
-        tw8836.write(0xF8, 0x0)
-        tw8836.write(0xF9, 0x0)
+        tw8836.write(0xF5, lut_size>>16)
+        tw8836.write(0xF8, lut_size>>8)
+        tw8836.write(0xF9, lut_size&0xFF)
 
         #start DMA write (BUSY check)
         tw8836.write(0xF4, (SPI_CMD_OPT_NONE<<2) | (DMA_READ<<1) | DMA_START)
+        
+        #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
+        while (tw8836.read(0xF4) & 0x01):
+            if (define.DEBUG == define.ON):
+                print 'wait...'
 
+def spi2fontram(spi_addr, fontram_addr, size):
+    if four_byte_check() == define.TRUE:     #in 4B mode    
+        write_enable()
+
+        tw8836.write_page(0x04)
+
+        tw8836.write(0xF3, (DMA_DEST_FONTRAM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_5)
+
+        #write slow read command
+        tw8836.write(0xFA, SPICMD_READ_SLOW)
+
+        #write block addr
+        tw8836.write(0xFB, (spi_addr >> 24))
+        tw8836.write(0xFC, (spi_addr >> 16))
+        tw8836.write(0xFD, (spi_addr >> 8))
+        tw8836.write(0xFE, (spi_addr))    
+
+        #write buffer start address
+        tw8836.write(0xF6, fontram_addr>>8)
+        tw8836.write(0xF7, fontram_addr&0xFF)
+        
+        #write data length
+        tw8836.write(0xF5, size>>16)
+        tw8836.write(0xF8, size>>8)
+        tw8836.write(0xF9, size&0xFF)
+
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (SPI_CMD_OPT_NONE<<2) | (DMA_READ<<1) | DMA_START)
+        
         #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
         while (tw8836.read(0xF4) & 0x01):
             if (define.DEBUG == define.ON):
@@ -1549,6 +1587,35 @@ def spi2lut(spi_addr, lut_addr, lut_size):
         while (status1_read() & 0x02):
             if (define.DEBUG == define.ON):
                 print 'wait...' 
-
-        #printf("\r\nsector addr[0x%x] erase finished!", sector_addr)    
         """
+    else:
+        write_enable()
+
+        tw8836.write_page(0x04)
+
+        tw8836.write(0xF3, (DMA_DEST_FONTRAM << 6) | (DMA_ACCESS_MODE_INC << 4) | DMA_CMD_COUNT_4)
+
+        #write slow read command
+        tw8836.write(0xFA, SPICMD_READ_SLOW)
+
+        #write block addr
+        tw8836.write(0xFB, (spi_addr >> 16))
+        tw8836.write(0xFC, (spi_addr >> 8))
+        tw8836.write(0xFD, (spi_addr))   
+
+        #write buffer start address
+        tw8836.write(0xF6, fontram_addr>>8)
+        tw8836.write(0xF7, fontram_addr&0xFF)
+        
+        #write data length
+        tw8836.write(0xF5, size>>16)
+        tw8836.write(0xF8, size>>8)
+        tw8836.write(0xF9, size&0xFF)
+
+        #start DMA write (BUSY check)
+        tw8836.write(0xF4, (SPI_CMD_OPT_NONE<<2) | (DMA_READ<<1) | DMA_START)
+        
+        #printf("\r\n0xF4 = 0x%x before DMA", tw8836.read(0xF4))
+        while (tw8836.read(0xF4) & 0x01):
+            if (define.DEBUG == define.ON):
+                print 'wait...'     

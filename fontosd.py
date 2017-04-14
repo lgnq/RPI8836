@@ -601,6 +601,27 @@ def win_zoom(winno, zoom_h, zoom_v):
 	tmp += val & 0xF0
 	tw8836.write(idx, tmp)
 
+def fontram_fifo_set(onoff):
+	tw8836.write_page(FONTOSD_PAGE)
+
+	val = tw8836.read(0x00)
+	if onoff == define.ON:
+		tw8836.write(0x00, val & ~0x02)
+	else:
+		tw8836.write(0x00, val | 0x02)
+
+def font_download_from_SPI(dest_loc, src_loc, size):
+	tw8836.wait_vblank(1)
+
+	fontram_fifo_set(define.OFF)
+	access_mode_set(FONTRAM)
+
+	spi2fontram(dest_loc, src_loc, size)
+
+	tw8836.wait_vblank(1)
+	fontram_fifo_set(ON)
+	access_mode_set(OSDRAM)
+
 def font_test():
 	devalue_set()
 
@@ -609,7 +630,8 @@ def font_test():
 	win_onoff(0, define.OFF)
 
     font_width_height_set(12, 18)
-	font_download(0, FONTS, 27, 229)
+	#font_download(0, FONTS, 27, 229)
+	font_download_from_SPI(0x80000, 0, 0x27F9)
 	win_alpha_set(0, 1, 4)
 	win_screen_xy(0, 200, 100)
 	win_screen_wh(0, 4, 4)
