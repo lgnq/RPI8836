@@ -460,10 +460,12 @@ def font_download(dest_font_index, dat, unit_size, unit_num):
         w_cnt += 2
         
         a = dat[i]
-        
+        #print a    
         for j in range(0, unit_size):
             tw8836.write(0x0A, a[j])
-            
+            #tw8836.write(0x0A, 0xFF)
+            #print hex(a[j])
+   
             w_cnt += 1
             if w_cnt >= 8:
                 time.sleep(0.001)
@@ -606,11 +608,12 @@ def font_test():
 	tw8836.wait_vblank(1)
 	win_onoff(0, define.OFF)
 
-	font_download(0, FONTS, 27, 0x80)
+        font_width_height_set(12, 18)
+	font_download(0, FONTS, 27, 229)
 	win_alpha_set(0, 1, 4)
-	win_screen_xy(0, 0, 0)
+	win_screen_xy(0, 200, 100)
 	win_screen_wh(0, 4, 4)
-	win_zoom(0, 1, 0)
+	win_zoom(0, 1, 1)
 
 	tw8836.write_page(FONTOSD_PAGE)
 
@@ -619,9 +622,10 @@ def font_test():
 
 	for i in range(0, 4):
 		for j in range(0, 4):
-			idx = i*4*j
+			idx = i*j+ord('a')
 			#tw8836.write(0x07, ord('x'))
-			tw8836.write(0x07, 10)
+			#tw8836.write(0x07, 50)
+                        tw8836.write(0x07, idx)
 
 	tw8836.write(0x04, tw8836.read(0x04) & 0xDF)
 	tw8836.write(0x04, tw8836.read(0x04) & 0xFE)
