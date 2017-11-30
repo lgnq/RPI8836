@@ -449,6 +449,18 @@ if __name__ == '__main__':
         
             tw8836.wait_vblank(1)		
             bmposd.image_display(winno, img_spi_addr, sx, sy, alpha, level, offset)
+        elif cmd_list[0] == 'osd':
+            if len(cmd_list) != 3:
+                print 'osd n on/off'
+            else:
+                winno = string.atoi(cmd_list[1], 16)
+                
+                if cmd_list[2] == 'on':
+                    bmposd.win_onoff(winno, 1)
+                elif cmd_list[2] == 'off':
+                    bmposd.win_onoff(winno, 0)
+                else:
+                    print 'osd n on/off'            
         elif cmd_list[0] == 'spi':
             if len(cmd_list) == 1:
                 print 'spi operation'
